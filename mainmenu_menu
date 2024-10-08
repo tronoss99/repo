@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<menus>
+  
+<menus_info>
+<title>[COLOR red]Tronoss[/COLOR][COLOR yellow]TV[/COLOR]</title>
+<genre>ALL</genre>
+<description>Contenido variado en español</description>
+<thumbnail>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/icon.png</thumbnail>
+<fanart>https://i.imgur.com/P9rlq5c.jpg</fanart>
+<credits>https://t.me/kodispain (joheos11)</credits>
+</menus_info>
+
+<menu>
+<title>[B][COLOR white]ACESTREAM CANALES [/COLOR][COLOR yellow]por @tronoss[/COLOR][/B]</title> 
+<link>$doregex[makelist]</link>
+<regex>
+<name>makelist</name>
+<listrepeat><![CDATA[
+  <title>[B][COLOR white][makelist.param3][/COLOR][/B]</title>
+  <link>[makelist.param1]</link>
+  <thumbnail>[makelist.param2]</thumbnail>
+  <fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
+]]></listrepeat>
+<expres><![CDATA[#$pyFunction
+def GetLSProData(page_data, Cookie_Jar, m):
+    import requests
+    DB_ID = "60911fbf01f9ac001530be3c"
+    data = requests.get(
+        "https://kodispaintv-server.vercel.app/api/productos").json()
+    productos = list(
+        filter(lambda producto: producto["categoria"]["_id"] == DB_ID and producto["estado"], data["productos"]))
+    return [(f"http://127.0.0.1:6878/ace/getstream?id={producto['enlace']}" if not producto['enlace'].startswith("http") else producto["enlace"], producto["imagen"], producto["nombre"])
+            for producto in productos]
+]]></expres>
+<page></page>
+</regex>
+<thumbnail>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/icon.png</thumbnail>
+<fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
+</menu>
+<menu>
+<title>[B][COLOR white]CANALES TV &amp; EVENTOS[/COLOR][/B]</title> 
+<link>$doregex[makelist]</link>
+<regex>
+<name>makelist</name>
+<listrepeat><![CDATA[
+  <title>[B][COLOR white][makelist.param3][/COLOR][/B]</title>
+  <link>[makelist.param1]</link>
+  <thumbnail>[makelist.param2]</thumbnail>
+  <fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
+]]></listrepeat>
+<expres><![CDATA[#$pyFunction
+def GetLSProData(page_data, Cookie_Jar, m):
+    import requests
+    DB_ID = "60911fd601f9ac001530be3d"
+    data = requests.get(
+        "https://kodispaintv-server.vercel.app/api/productos").json()
+    productos = list(
+        filter(lambda producto: producto["categoria"]["_id"] == DB_ID and producto["estado"], data["productos"]))
+    return [(f"http://127.0.0.1:6878/ace/getstream?id={producto['enlace']}" if not producto['enlace'].startswith("http") else producto["enlace"], producto["imagen"], producto["nombre"])
+            for producto in productos]
+]]></expres>
+<page></page>
+</regex>
+<thumbnail>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/icon.png</thumbnail>
+<fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
+</menu>
+</menus>
