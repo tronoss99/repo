@@ -10,8 +10,6 @@
 <fanart>https://i.imgur.com/P9rlq5c.jpg</fanart>
 </menus_info>
 
-<menu>
-
 <title>[B][COLOR yellow]En Mantenimiento.[/COLOR][/B]</title>
 <link>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/mainmenu_menu</link>
 <thumbnail>https://i.pinimg.com/originals/3b/77/b9/3b77b9cf378da4c6a505c053e1ddf313.png</thumbnail>
@@ -19,62 +17,32 @@
 </menu>
 
 <menu>
-  <title>[B][COLOR white]ACESTREAM CANALES [/COLOR][COLOR yellow]por @tronoss[/COLOR][/B]</title>
-  <link>$doregex[makelist]</link>
-  <regex>
-    <name>makelist</name>
-    <listrepeat><![CDATA[
-      <title>[B][COLOR white][makelist.param3][/COLOR][/B]</title>
-      <link>[makelist.param1]</link>
-      <thumbnail>[makelist.param2]</thumbnail>
-      <fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
-    ]]></listrepeat>
-    <expres><![CDATA[
-      #$pyFunction
-      def GetLSProData(page_data, Cookie_Jar, m):
-          import requests
-          import re
-
-          # URL de IPFS donde se encuentran los enlaces
-          url = "https://ipfs.io/ipns/elcano.top"
-          
-          # Realizamos la solicitud HTTP
-          response = requests.get(url)
-          
-          # Verificamos que la respuesta fue exitosa
-          if response.status_code == 200:
-              html_content = response.text
-              
-              # Usamos una expresión regular para encontrar todos los enlaces 'acestream://'
-              pattern = re.compile(r'href="(acestream://[a-zA-Z0-9]+)"')
-              matches = pattern.findall(html_content)
-              
-              canales = []
-              
-              for match in matches:
-                  # Buscamos el nombre del canal a partir del contenido del HTML
-                  # Se asume que el nombre del canal está dentro de una etiqueta <div class="link-name">
-                  canal_name_match = re.search(r'<div class="link-name">([^<]+)</div>', html_content)
-                  canal_name = canal_name_match.group(1) if canal_name_match else "Desconocido"
-                  
-                  # Añadimos la entrada para el canal
-                  canales.append((
-                      match,  # El enlace de AceStream
-                      "https://i.imgur.com/3zk1XTz.jpg",  # Thumbnail genérico
-                      canal_name  # Nombre del canal
-                  ))
-              
-              # Devolvemos la lista de canales formateada
-              return canales
-          else:
-              return []
-    ]]></expres>
-    <page></page>
-  </regex>
-  <thumbnail>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/icon.png</thumbnail>
+<title>[B][COLOR white]ACESTREAM CANALES [/COLOR][COLOR yellow]por @tronoss[/COLOR][/B]</title> 
+<link>$doregex[makelist]</link>
+<regex>
+<name>makelist</name>
+<listrepeat><![CDATA[
+  <title>[B][COLOR white][makelist.param3][/COLOR][/B]</title>
+  <link>[makelist.param1]</link>
+  <thumbnail>[makelist.param2]</thumbnail>
   <fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
+]]></listrepeat>
+<expres><![CDATA[#$pyFunction
+def GetLSProData(page_data, Cookie_Jar, m):
+    import requests
+    DB_ID = "60911fbf01f9ac001530be3c"
+    data = requests.get(
+        "https://kodispaintv-server.vercel.app/api/productos").json()
+    productos = list(
+        filter(lambda producto: producto["categoria"]["_id"] == DB_ID and producto["estado"], data["productos"]))
+    return [(f"http://127.0.0.1:6878/ace/getstream?id={producto['enlace']}" if not producto['enlace'].startswith("http") else producto["enlace"], producto["imagen"], producto["nombre"])
+            for producto in productos]
+]]></expres>
+<page></page>
+</regex>
+<thumbnail>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/icon.png</thumbnail>
+<fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
 </menu>
-
 <menu>
 <title>[B][COLOR white]CANALES TV &amp; EVENTOS[/COLOR][/B]</title> 
 <link>$doregex[makelist]</link>
