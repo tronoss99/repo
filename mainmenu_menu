@@ -10,6 +10,7 @@
 <fanart>https://i.imgur.com/P9rlq5c.jpg</fanart>
 </menus_info>
 
+<menu>
 <title>[B][COLOR yellow]En Mantenimiento.[/COLOR][/B]</title>
 <link>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/mainmenu_menu</link>
 <thumbnail>https://i.pinimg.com/originals/3b/77/b9/3b77b9cf378da4c6a505c053e1ddf313.png</thumbnail>
