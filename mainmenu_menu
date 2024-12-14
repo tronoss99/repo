@@ -38,6 +38,14 @@ def GetLSProData(page_data, Cookie_Jar, m):
 <fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
 </menu>
 <menu>
+
+<title>[B][COLOR yellow]En Mantenimiento.[/COLOR][/B]</title>
+<link>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/mainmenu_menu</link>
+<thumbnail>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/icon.png</thumbnail>
+<fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
+</menu>
+
+<menu>
 <title>[B][COLOR white]CANALES TV &amp; EVENTOS[/COLOR][/B]</title> 
 <link>$doregex[makelist]</link>
 <regex>
