@@ -1,81 +1,73 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
 <menus>
-  <menus_info>
-    <title>[COLOR red]Tronoss[/COLOR][COLOR yellow]TV[/COLOR]</title>
-    <genre>ALL</genre>
-    <description>Contenido variado en español</description>
-    <thumbnail>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/icon.png</thumbnail>
-    <fanart>https://i.imgur.com/P9rlq5c.jpg</fanart>
-  </menus_info>
 
-  <!-- Menú principal -->
-  <menu>
-    <title>[B][COLOR white]ACESTREAM CANALES[/COLOR] [COLOR yellow]por @tronoss[/COLOR]</B></title>
-    <link>$doregex[makelist]</link>
+<menus_info>
+<title>[COLOR red]Tronoss[/COLOR][COLOR yellow]TV[/COLOR]</title>
+<genre>ALL</genre>
+<description>Contenido variado en español</description>
+<thumbnail>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/icon.png</thumbnail>
+<fanart>https://i.imgur.com/P9rlq5c.jpg</fanart>
+</menus_info>
 
-    <regex>
-      <name>makelist</name>
-      <listrepeat><![CDATA[
-        <title>[B][COLOR white][makelist.param3][/COLOR][/B]</title>
-        <link>[makelist.param1]</link>
-        <thumbnail>[makelist.param2]</thumbnail>
-        <fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
-      ]]></listrepeat>
-
-      <expres><![CDATA[
-        #$pyFunction
-        def GetAceStreamChannels(page_data, Cookie_Jar, m):
-            import requests
-            from bs4 import BeautifulSoup
-
-            url = "https://ipfs.io/ipns/elcano.top"  # URL donde se encuentran los canales AceStream
-            try:
-                response = requests.get(url)
-                response.raise_for_status()
-                soup = BeautifulSoup(response.text, 'html.parser')
-                
-                canales = []
-                for li in soup.find_all('li'):
-                    nombre = li.find('div', class_='link-name')
-                    url_acestream = li.find('a', href=True)
-
-                    if nombre and url_acestream:
-                        canales.append({
-                            'nombre': nombre.get_text(strip=True),
-                            'url': url_acestream['href'],
-                            'thumbnail': 'https://i.imgur.com/3zk1XTz.jpg'  # Puedes personalizar la miniatura
-                        })
-                
-                return canales
-            except requests.exceptions.RequestException as e:
-                print(f"Error al obtener los canales: {e}")
-                return []
-      ]]></expres>
-
-      <page></page>
-    </regex>
-
-    <thumbnail>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/icon.png</thumbnail>
-    <fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
-  </menu>
-
-  <!-- Otros menús -->
-  <menu>
-    <title>[B][COLOR white]CANALES TV &amp; EVENTOS[/COLOR][/B]</title>
-    <link>$doregex[makelist]</link>
-    <regex>
-      <name>makelist</name>
-      <listrepeat><![CDATA[
-        <title>[B][COLOR white][makelist.param3][/COLOR][/B]</title>
-        <link>[makelist.param1]</link>
-        <thumbnail>[makelist.param2]</thumbnail>
-        <fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
-      ]]></listrepeat>
-      <expres><![CDATA[ 
-        # Aquí va el código para obtener canales de TV, si es necesario. 
-      ]]></expres>
-    </regex>
-    <thumbnail>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/icon.png</thumbnail>
-    <fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
-  </menu>
+<menu>
+<title>[B][COLOR white]ACESTREAM CANALES [/COLOR][COLOR yellow]por @tronoss[/COLOR][/B]</title> 
+<link>$doregex[makelist]</link>
+<regex>
+<name>makelist</name>
+<listrepeat><![CDATA[
+  <title>[B][COLOR white][makelist.param3][/COLOR][/B]</title>
+  <link>[makelist.param1]</link>
+  <thumbnail>[makelist.param2]</thumbnail>
+  <fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
+]]></listrepeat>
+<expres><![CDATA[#$pyFunction
+def GetLSProData(page_data, Cookie_Jar, m):
+    import requests
+    DB_ID = "60911fbf01f9ac001530be3c"
+    data = requests.get(
+        "https://kodispaintv-server.vercel.app/api/productos").json()
+    productos = list(
+        filter(lambda producto: producto["categoria"]["_id"] == DB_ID and producto["estado"], data["productos"]))
+    return [(f"http://127.0.0.1:6878/ace/getstream?id={producto['enlace']}" if not producto['enlace'].startswith("http") else producto["enlace"], producto["imagen"], producto["nombre"])
+            for producto in productos]
+]]></expres>
+<page></page>
+</regex>
+<thumbnail>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/icon.png</thumbnail>
+<fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
+</menu>
+<menu>
+<title>[B][COLOR yellow]En Mantenimiento.[/COLOR][/B]</title>
+<link>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/mainmenu_menu</link>
+<thumbnail>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/icon.png</thumbnail>
+<fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
+</menu>
+<menu>
+<title>[B][COLOR white]CANALES TV &amp; EVENTOS[/COLOR][/B]</title> 
+<link>$doregex[makelist]</link>
+<regex>
+<name>makelist</name>
+<listrepeat><![CDATA[
+  <title>[B][COLOR white][makelist.param3][/COLOR][/B]</title>
+  <link>[makelist.param1]</link>
+  <thumbnail>[makelist.param2]</thumbnail>
+  <fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
+]]></listrepeat>
+<expres><![CDATA[#$pyFunction
+def GetLSProData(page_data, Cookie_Jar, m):
+    import requests
+    DB_ID = "60911fd601f9ac001530be3d"
+    data = requests.get(
+        "https://kodispaintv-server.vercel.app/api/productos").json()
+    productos = list(
+        filter(lambda producto: producto["categoria"]["_id"] == DB_ID and producto["estado"], data["productos"]))
+    return [(f"http://127.0.0.1:6878/ace/getstream?id={producto['enlace']}" if not producto['enlace'].startswith("http") else producto["enlace"], producto["imagen"], producto["nombre"])
+            for producto in productos]
+]]></expres>
+<page></page>
+</regex>
+<thumbnail>https://raw.githubusercontent.com/tronoss99/repo/refs/heads/main/icon.png</thumbnail>
+<fanart>https://i.imgur.com/3zk1XTz.jpg</fanart>
+</menu>
 </menus>
