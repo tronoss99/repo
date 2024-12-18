@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addons>
+    <!-- Tronoss TV Addon -->
+    <addon id="plugin.video.tronosstv" name="Tronoss TV" version="1.0.0" provider-name="tronoss">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+            <import addon="script.module.horus" version="1.0.0" />
+        </requires>
+        <extension point="xbmc.python.pluginsource" library="addon.py">
+            <provides>video</provides>
+        </extension>
+        <extension point="xbmc.addon.metadata">
+            <summary>Tronoss TV Addon</summary>
+            <description>Canales de TV y deportes</description>
+            <platform>all</platform>
+            <assets>
+                <icon>resources/icon.png</icon>
+                <fanart>resources/fanart.jpg</fanart>
+            </assets>
+        </extension>
+        <download>https://tronoss99.github.io/repo/addons/plugin.video.tronosstv-1.0.0.zip</download>
+    </addon>
+
+    <!-- Horus Module -->
+    <addon id="script.module.horus" name="Horus Module" version="1.0.0" provider-name="tronoss">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+        </requires>
+        <extension point="xbmc.python.module" library="lib" />
+        <extension point="xbmc.addon.metadata">
+            <summary>Horus Module</summary>
+            <description>Script para reproducir enlaces AceStream.</description>
+            <platform>all</platform>
+            <assets>
+                <icon>resources/icon.png</icon>
+                <fanart>resources/fanart.jpg</fanart>
+            </assets>
+        </extension>
+        <download>https://tronoss99.github.io/repo/addons/script.module.horus-1.0.0.zip</download>
+    </addon>
+</addons>
