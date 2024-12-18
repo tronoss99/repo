@@ -107,27 +107,15 @@ def get_page_content(url):
 
 def extract_acestream_links(content):
     channels = []
-    seen_ids = set() 
     seen_names = set()  
-    pattern_full = r'"name":\s*"([^"]+)".*?"url":\s*"acestream://([a-fA-F0-9]+)"'
+    pattern_full = r'"name":\s*"([^\"]+)".*?"url":\s*"acestream://([a-fA-F0-9]+)"'
     matches_full = re.findall(pattern_full, content)
     
     for name, channel_id in matches_full:
         name = name.strip()
-        channel_id = channel_id.strip()
-        if channel_id not in seen_ids: 
-            channels.append((name, channel_id))
-            seen_ids.add(channel_id)
+        if name not in seen_names:  
+            channels.append((name, channel_id.strip()))
             seen_names.add(name)  
-
-    pattern_no_link = r'"name":\s*"([^"]+)"'
-    matches_no_link = re.findall(pattern_no_link, content)
-    
-    for name in matches_no_link:
-        name = name.strip()
-        if name not in seen_names: 
-            channels.append((name, ""))
-            seen_names.add(name)
     lines = content.splitlines()
     for line in lines:
         line = line.strip()
@@ -135,10 +123,10 @@ def extract_acestream_links(content):
             name_match = re.match(r'(.*?)\s*acestream://', line)
             if name_match:
                 name = name_match.group(1).strip()
-                if name and name not in seen_names:
+                if name and name not in seen_names: 
                     channels.append((name, ""))
                     seen_names.add(name)
-                    
+
     return sorted(channels, key=lambda x: x[0].lower())
 
 def build_url(query):
