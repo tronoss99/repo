@@ -111,19 +111,23 @@ def extract_acestream_links(content):
     full_pattern = r'"name":\s*"([^"]+)".*?"url":\s*"acestream://([a-fA-F0-9]+)"'
     all_names = re.findall(name_pattern, content)
     full_matches = re.findall(full_pattern, content)
-    links_dict = {name.strip(): f"acestream://{channel_id.strip()}" for name, channel_id in full_matches}
+    
+    links_dict = {}
+    for name, channel_id in full_matches:
+        if re.match(r'^[a-fA-F0-9]+$', channel_id):
+            links_dict[name.strip()] = f"acestream://{channel_id.strip()}"
+        else:
+            links_dict[name.strip()] = None  
+    
     for name in all_names:
         name = name.strip()
-        link = links_dict.get(name, None)  
-        if link and re.match(r"^acestream://[a-fA-F0-9]+$", link):
-            channels.append((to_utf8(name), link))  
+        link = links_dict.get(name, None)
+        channels.append((to_utf8(name), link))
+    
     return sorted(channels, key=lambda x: x[0].lower())
 
-def to_utf8(value):
-    try:
-        return value.encode('utf-8').decode('utf-8')
-    except UnicodeDecodeError:
-        return value  
+def to_utf8(text):
+    return text.encode('utf-8').decode('utf-8')
 
 def build_url(query):
     return f"{base_url}?{urllib.parse.urlencode(query)}"
