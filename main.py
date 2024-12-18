@@ -113,15 +113,14 @@ def extract_acestream_links(content):
     matches_full = re.findall(pattern_full, content)
     for name, channel_id in matches_full:
         channels.append((name.strip(), channel_id.strip()))
+
     pattern_no_link = r'"name":\s*"([^"]+)"'
     matches_no_link = re.findall(pattern_no_link, content)
-    
+
     for name in matches_no_link:
-        if "name:" in name or "id" in name:
-            name = name.split(':')[-1].strip()
-        
         if name not in [c[0] for c in channels]:
             channels.append((name.strip(), ""))
+
     lines = content.splitlines()
     for line in lines:
         line = line.strip()
@@ -131,6 +130,7 @@ def extract_acestream_links(content):
                 name = name_match.group(1).strip()
                 if name not in [c[0] for c in channels]:
                     channels.append((name, ""))
+                    
     return sorted(channels, key=lambda x: x[0].lower())
 
 
