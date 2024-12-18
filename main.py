@@ -107,16 +107,14 @@ def get_page_content(url):
 
 def extract_acestream_links(content):
     channels = []
-    seen_names = set()
+    seen_names = set()  
     pattern_full = r'"name":\s*"([^\"]+)".*?"url":\s*"acestream://([a-fA-F0-9]+)"'
     matches_full = re.findall(pattern_full, content)
-
     for name, channel_id in matches_full:
         name = name.strip()
-        if name not in seen_names:
+        if name not in seen_names: 
             channels.append(f'{{"name": "{name}", "url": "acestream://{channel_id.strip()}"}}')
-            seen_names.add(name)
-    
+            seen_names.add(name) 
     lines = content.splitlines()
     for line in lines:
         line = line.strip()
@@ -125,11 +123,9 @@ def extract_acestream_links(content):
             if name_match:
                 name = name_match.group(1).strip()
                 if name and name not in seen_names: 
-                    channels.append(f'{{"name": "{name}", "url": ""}}') 
+                    channels.append(name)  
                     seen_names.add(name)
     return sorted(channels)
-def build_url(query):
-    return f"{base_url}?{urllib.parse.urlencode(query)}"
 
 def list_channels():
     content = get_page_content(ACESTREAM_URL)
