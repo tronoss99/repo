@@ -107,21 +107,27 @@ def get_page_content(url):
 
 def extract_acestream_links(content):
     channels = []
-    pattern_full = r'"name":\s*"([^\"]+)".*?"url":\s*"acestream://([a-fA-F0-9]+)"'
+    seen_ids = set() 
+    seen_names = set()  
+    pattern_full = r'"name":\s*"([^"]+)".*?"url":\s*"acestream://([a-fA-F0-9]+)"'
     matches_full = re.findall(pattern_full, content)
-    seen_ids = set()
+    
     for name, channel_id in matches_full:
-        if channel_id not in seen_ids:
-            channels.append((name.strip(), channel_id.strip()))
+        name = name.strip()
+        channel_id = channel_id.strip()
+        if channel_id not in seen_ids: 
+            channels.append((name, channel_id))
             seen_ids.add(channel_id)
+            seen_names.add(name)  
 
     pattern_no_link = r'"name":\s*"([^"]+)"'
     matches_no_link = re.findall(pattern_no_link, content)
-
+    
     for name in matches_no_link:
-        if name not in [c[0] for c in channels]:
-            channels.append((name.strip(), ""))
-
+        name = name.strip()
+        if name not in seen_names: 
+            channels.append((name, ""))
+            seen_names.add(name)
     lines = content.splitlines()
     for line in lines:
         line = line.strip()
@@ -129,9 +135,10 @@ def extract_acestream_links(content):
             name_match = re.match(r'(.*?)\s*acestream://', line)
             if name_match:
                 name = name_match.group(1).strip()
-                if name not in [c[0] for c in channels]:
+                if name and name not in seen_names:
                     channels.append((name, ""))
-
+                    seen_names.add(name)
+                    
     return sorted(channels, key=lambda x: x[0].lower())
 
 def build_url(query):
