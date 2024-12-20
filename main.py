@@ -169,21 +169,6 @@ def list_tronossiptv_channels():
 
     xbmcplugin.endOfDirectory(addon_handle)
 
-def play_tronossiptv(url):
-    """Reproduce un canal de TronossIPTV directamente desde su URL."""
-    if not url:
-        xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8("Canal sin URL disponible"), xbmcgui.NOTIFICATION_ERROR)
-        return
-
-    list_item = xbmcgui.ListItem(path=url)
-    list_item.setProperty("IsPlayable", "true")
-
-    try:
-        xbmc.Player().play(url, list_item)
-        xbmcgui.Dialog().notification(to_utf8("TronossIPTV"), to_utf8("Reproduciendo canal..."), xbmcgui.NOTIFICATION_INFO)
-    except Exception as e:
-        xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8(f"No se pudo reproducir el canal: {e}"), xbmcgui.NOTIFICATION_ERROR)
-
 def list_channels():
     content = get_page_content(ACESTREAM_URL)
     if not content:
@@ -253,8 +238,6 @@ def router(args):
         list_channels()
     elif action == "tronossiptv":
         list_tronossiptv_channels()
-    elif action == "play_tronossiptv" and url:
-        play_tronossiptv(url)
     else:
         build_main_menu()
 
