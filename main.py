@@ -15,7 +15,6 @@ import hmac
 
 addon_handle = int(sys.argv[1])
 base_url = sys.argv[0]
-
 ICON_PATH = xbmcvfs.translatePath('special://home/addons/plugin.video.tronosstv/icono.png')
 FANART_PATH = xbmcvfs.translatePath('special://home/addons/plugin.video.tronosstv/resources/fanart.jpg')
 CREDENTIALS_FILE = xbmcvfs.translatePath('special://profile/addon_data/plugin.video.tronosstv/credentials.json')
@@ -35,18 +34,11 @@ def check_remote_status():
         if response.status_code == 200:
             status_data = response.json()
             if status_data.get("status") == "mantenimiento":
-                xbmcgui.Dialog().ok(
-                    to_utf8("Mantenimiento"),
-                    to_utf8(status_data.get("message", "El addon esta en mantenimiento."))
-                )
-                return False  
+                xbmcgui.Dialog().ok(to_utf8("Mantenimiento"), to_utf8(status_data.get("message", "El addon esta en mantenimiento.")))
+                return False
         return True
     except Exception as e:
-        xbmcgui.Dialog().notification(
-            to_utf8("Error"),
-            to_utf8(f"No se pudo verificar el estado remoto: {e}"),
-            xbmcgui.NOTIFICATION_ERROR
-        )
+        xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8(f"No se pudo verificar el estado remoto: {e}"), xbmcgui.NOTIFICATION_ERROR)
         return True
 
 def obfuscate_credentials(username, password):
@@ -82,7 +74,6 @@ def check_credentials():
     correct_auth = obfuscate_credentials("tronoss", "tronoss1234")
     if stored_auth == correct_auth:
         return True
-
     xbmcgui.Dialog().notification(to_utf8("Inicio de sesion"), to_utf8("Por favor, inicia sesion"), xbmcgui.NOTIFICATION_INFO)
     while True:
         username, password = prompt_for_credentials()
@@ -111,12 +102,12 @@ def extract_acestream_links(content):
     pattern_full = r'"name":\s*"([^"]+)".*?"url":\s*"acestream://([a-fA-F0-9]+)"'
     matches_full = re.findall(pattern_full, content)
     for name, channel_id in matches_full:
-        if '{' not in name and '}' not in name:  
+        if '{' not in name and '}' not in name:
             channels.append((name.strip(), channel_id.strip()))
     pattern_no_link = r'"name":\s*"([^"]+)"'
     matches_no_link = re.findall(pattern_no_link, content)
     for name in matches_no_link:
-        if '{' not in name and '}' not in name:  
+        if '{' not in name and '}' not in name:
             if name not in [c[0] for c in channels]:
                 channels.append((name.strip(), ""))
     lines = content.splitlines()
@@ -126,7 +117,7 @@ def extract_acestream_links(content):
             name_match = re.match(r'(.*?)\s*acestream://', line)
             if name_match:
                 name = name_match.group(1).strip()
-                if '{' not in name and '}' not in name: 
+                if '{' not in name and '}' not in name:
                     if name not in [c[0] for c in channels]:
                         channels.append((name, ""))
     return sorted(channels, key=lambda x: x[0].lower())
@@ -139,13 +130,11 @@ def list_channels():
     if not content:
         xbmcplugin.endOfDirectory(addon_handle)
         return
-
     channels = extract_acestream_links(content)
     if not channels:
         xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8("No se encontraron canales"), xbmcgui.NOTIFICATION_WARNING)
         xbmcplugin.endOfDirectory(addon_handle)
         return
-
     for name, channel_id in channels:
         url = build_url({"action": "play", "id": channel_id}) if channel_id else ""
         list_item = xbmcgui.ListItem(to_utf8(name))
@@ -157,42 +146,9 @@ def list_channels():
             'fanart': FANART_PATH
         })
         xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=list_item, isFolder=False)
-
-    xbmcplugin.endOfDirectory(addon_handle)
-
-def play_channel(channel_id):
-    if not channel_id:
-        xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8("Canal sin ID disponible"), xbmcgui.NOTIFICATION_ERROR)
-        return
-
-    horus_command = f'RunPlugin("plugin://script.module.horus/?action=play&id={channel_id}")'
-    try:
-        xbmc.executebuiltin(horus_command)
-        xbmcgui.Dialog().notification(to_utf8("Horus"), to_utf8("Reproduciendo en AceStream Engine..."), xbmcgui.NOTIFICATION_INFO)
-    except Exception as e:
-        xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8(f"No se pudo ejecutar Horus: {e}"), xbmcgui.NOTIFICATION_ERROR)
-
-def build_main_menu():
-    xbmc.executebuiltin('Container.SetViewMode(55)')
-
-    url_tronosstv = build_url({"action": "tronosstv"})
-    list_item_tronosstv = xbmcgui.ListItem(label="TronossTV")
-    list_item_tronosstv.setProperty("IsPlayable", "false")
-    list_item_tronosstv.setArt({'icon': '', 'thumb': ICON_PATH, 'fanart': FANART_PATH})
-    xbmcplugin.addDirectoryItem(handle=addon_handle, url=url_tronosstv, listitem=list_item_tronosstv, isFolder=True)
-
-    url_tronossiptv = build_url({"action": "tronossiptv"})
-    list_item_tronossiptv = xbmcgui.ListItem(label="TronossIPTV")
-    list_item_tronossiptv.setProperty("IsPlayable", "false")
-    list_item_tronossiptv.setArt({'icon': '', 'thumb': ICON_PATH, 'fanart': FANART_PATH})
-    xbmcplugin.addDirectoryItem(handle=addon_handle, url=url_tronossiptv, listitem=list_item_tronossiptv, isFolder=True)
-
     xbmcplugin.endOfDirectory(addon_handle)
 
 def get_ts_channels():
-    """
-    Obtiene los canales desde la URL específica y los filtra por el grupo 'Spain'.
-    """
     try:
         response = requests.get("https://www2.vavoo.to/live2/index", params={"output": "json"})
         response.raise_for_status()
@@ -200,27 +156,21 @@ def get_ts_channels():
     except Exception as e:
         xbmcgui.Dialog().notification("Error", f"No se pudieron obtener los canales: {e}", xbmcgui.NOTIFICATION_ERROR)
         return []
-
-    # Filtrar canales por el grupo "Spain"
     spain_channels = [channel for channel in all_channels if channel.get("group") == "Spain"]
     return spain_channels
 
-
 def list_tronoss_iptv_channels():
-    """
-    Lista los canales en la pestaña TronossIPTV.
-    """
     channels = get_ts_channels()
     if not channels:
         xbmcgui.Dialog().notification("Error", "No se encontraron canales para el grupo 'Spain'", xbmcgui.NOTIFICATION_WARNING)
         xbmcplugin.endOfDirectory(addon_handle)
         return
-
     for channel in channels:
         name = channel.get("name", "Sin nombre")
         url = channel.get("url")
-        icon = channel.get("icon", ICON_PATH)  # Usa un ícono predeterminado si no se especifica uno
-
+        icon = channel.get("icon", ICON_PATH)
+        if not url:
+            continue
         list_item = xbmcgui.ListItem(to_utf8(name))
         list_item.setInfo("video", {"title": to_utf8(name)})
         list_item.setProperty("IsPlayable", "true")
@@ -229,37 +179,78 @@ def list_tronoss_iptv_channels():
             'thumb': icon,
             'fanart': FANART_PATH
         })
-
-        xbmcplugin.addDirectoryItem(handle=addon_handle, url=build_url({"action": "play_iptv", "url": url}), listitem=list_item, isFolder=False)
-
+        xbmcplugin.addDirectoryItem(
+            handle=addon_handle,
+            url=build_url({"action": "play_iptv", "url": url}),
+            listitem=list_item,
+            isFolder=False
+        )
     xbmcplugin.endOfDirectory(addon_handle)
 
+class XstreamPlayer(xbmc.Player):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.streamFinished = False
+        self.streamSuccess = True
+        self.playedTime = 0
+        self.totalTime = 999999
+    def onPlayBackStarted(self):
+        self.totalTime = self.getTotalTime()
+    def onPlayBackStopped(self):
+        if self.playedTime == 0 and self.totalTime == 999999:
+            self.streamSuccess = False
+        self.streamFinished = True
+    def onPlayBackEnded(self):
+        self.onPlayBackStopped()
 
-def play_iptv_channel(channel_url):
-    """
-    Reproduce un canal de IPTV directamente.
-    """
-    if not channel_url:
-        xbmcgui.Dialog().notification("Error", "URL del canal no disponible", xbmcgui.NOTIFICATION_ERROR)
+def play_channel(channel_id, use_horus=False):
+    if not channel_id:
+        xbmcgui.Dialog().notification("Error", "Canal sin ID o URL disponible", xbmcgui.NOTIFICATION_ERROR)
         return
+    if use_horus:
+        horus_command = f'RunPlugin("plugin://script.module.horus/?action=play&id={channel_id}")'
+        try:
+            xbmc.executebuiltin(horus_command)
+            xbmcgui.Dialog().notification("Horus", "Reproduciendo en AceStream Engine...", xbmcgui.NOTIFICATION_INFO)
+        except Exception as e:
+            xbmcgui.Dialog().notification("Error", f"No se pudo ejecutar Horus: {e}", xbmcgui.NOTIFICATION_ERROR)
+    else:
+        player = XstreamPlayer()
+        play_item = xbmcgui.ListItem(path=channel_id)
+        xbmcplugin.setResolvedUrl(addon_handle, True, listitem=play_item)
+        monitor = xbmc.Monitor()
+        while not monitor.abortRequested() and not player.streamFinished:
+            if player.isPlayingVideo():
+                player.playedTime = player.getTime()
+            monitor.waitForAbort(1)
+        if not player.streamSuccess:
+            xbmcgui.Dialog().notification("Error", "No se pudo reproducir el canal", xbmcgui.NOTIFICATION_ERROR)
 
-    play_item = xbmcgui.ListItem(path=channel_url)
-    xbmcplugin.setResolvedUrl(addon_handle, True, listitem=play_item)
-
+def build_main_menu():
+    xbmc.executebuiltin('Container.SetViewMode(55)')
+    url_tronosstv = build_url({"action": "tronosstv"})
+    list_item_tronosstv = xbmcgui.ListItem(label="TronossTV")
+    list_item_tronosstv.setProperty("IsPlayable", "false")
+    list_item_tronosstv.setArt({'icon': '', 'thumb': ICON_PATH, 'fanart': FANART_PATH})
+    xbmcplugin.addDirectoryItem(handle=addon_handle, url=url_tronosstv, listitem=list_item_tronosstv, isFolder=True)
+    url_tronossiptv = build_url({"action": "tronossiptv"})
+    list_item_tronossiptv = xbmcgui.ListItem(label="TronossIPTV")
+    list_item_tronossiptv.setProperty("IsPlayable", "false")
+    list_item_tronossiptv.setArt({'icon': '', 'thumb': ICON_PATH, 'fanart': FANART_PATH})
+    xbmcplugin.addDirectoryItem(handle=addon_handle, url=url_tronossiptv, listitem=list_item_tronossiptv, isFolder=True)
+    xbmcplugin.endOfDirectory(addon_handle)
 
 def router(args):
-    """
-    Redirecciona las acciones del addon.
-    """
     action = args.get("action", [None])[0]
-    channel_url = args.get("url", [None])[0]
-
-    if action == "play_iptv" and channel_url:
-        play_iptv_channel(channel_url)
-    elif action == "tronossiptv":
-        list_tronoss_iptv_channels()
+    channel_id = args.get("id", [None])[0]
+    if action == "play":
+        play_channel(channel_id, use_horus=True)
+    elif action == "play_iptv":
+        play_channel(channel_id, use_horus=False)
     elif action == "tronosstv":
         list_channels()
+    elif action == "tronossiptv":
+        list_tronoss_iptv_channels()
     else:
         build_main_menu()
 
