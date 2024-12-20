@@ -132,6 +132,24 @@ def extract_acestream_links(content):
                         channels.append((name, ""))
     return sorted(channels, key=lambda x: x[0].lower())
 
+def get_tronossiptv_channels():
+    try:
+        signature = vavoosigner.getWatchedSig()
+        headers = {
+            "user-agent": "WATCHED/1.8.3 (android)",
+            "accept": "application/json",
+            "content-type": "application/json; charset=utf-8",
+            "watched-sig": signature,
+        }
+        response = requests.get("https://www2.vavoo.to/live2/index", headers=headers, params={"output": "json"})
+        response.raise_for_status()
+        channels = response.json()
+        spain_channels = [channel for channel in channels if channel.get("group") == "Spain"]
+        return spain_channels
+    except Exception as e:
+        xbmcgui.Dialog().notification(to_utf8("Error"), f"No se pudieron obtener los canales: {e}", xbmcgui.NOTIFICATION_ERROR)
+        return []
+
 def list_channels():
     content = get_page_content(ACESTREAM_URL)
     if not content:
@@ -171,29 +189,47 @@ def play_channel(channel_id):
         xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8(f"No se pudo ejecutar Horus: {e}"), xbmcgui.NOTIFICATION_ERROR)
 
 def list_tronossiptv_channels():
+    channels = get_tronossiptv_channels()
+    if not channels:
+        xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8("No se encontraron canales para el grupo 'Spain'"), xbmcgui.NOTIFICATION_WARNING)
+        xbmcplugin.endOfDirectory(addon_handle)
+        return
+
+    for channel in channels:
+        name = channel.get("name", "Sin nombre")
+        url = channel.get("url")
+        icon = channel.get("logo", ICON_PATH)
+        if not url:
+            continue
+        list_item = xbmcgui.ListItem(to_utf8(name))
+        list_item.setInfo("video", {"title": to_utf8(name)})
+        list_item.setProperty("IsPlayable", "true")
+        list_item.setArt({
+            'icon': icon,
+            'thumb': icon,
+            'fanart': FANART_PATH
+        })
+        xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=list_item, isFolder=False)
+
+    xbmcplugin.endOfDirectory(addon_handle)
+
+def play_tronossiptv_channel(url):
+    if not url:
+        xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8("URL no válida"), xbmcgui.NOTIFICATION_ERROR)
+        return
+
     try:
-        channels = vjlive.get_ts_channels()
-        if not channels:
-            xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8("No se encontraron canales"), xbmcgui.NOTIFICATION_WARNING)
-            xbmcplugin.endOfDirectory(addon_handle)
-            return
+        resolved_url = vjlive.resolve_link(url)
 
-        for name, urls in channels.items():
-            url = urls[0]  # Choose the first URL for simplicity
-            list_item = xbmcgui.ListItem(to_utf8(name))
-            list_item.setInfo("video", {"title": to_utf8(name)})
+        if resolved_url:
+            list_item = xbmcgui.ListItem(path=resolved_url)
             list_item.setProperty("IsPlayable", "true")
-            list_item.setArt({
-                'icon': ICON_PATH,
-                'thumb': ICON_PATH,
-                'fanart': FANART_PATH
-            })
-            xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=list_item, isFolder=False)
-
-        xbmcplugin.endOfDirectory(addon_handle)
+            xbmcplugin.setResolvedUrl(addon_handle, True, list_item)
+            xbmcgui.Dialog().notification(to_utf8("Reproducción"), to_utf8("Canal en reproducción"), xbmcgui.NOTIFICATION_INFO)
+        else:
+            xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8("No se pudo resolver el canal"), xbmcgui.NOTIFICATION_ERROR)
     except Exception as e:
-        xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8(f"Falló la obtención de canales: {e}"), xbmcgui.NOTIFICATION_ERROR)
-        xbmcplugin.endOfDirectory(addon_handle)
+        xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8(f"Error al reproducir el canal: {e}"), xbmcgui.NOTIFICATION_ERROR)
 
 def build_main_menu():
     xbmc.executebuiltin('Container.SetViewMode(55)')
@@ -201,13 +237,13 @@ def build_main_menu():
     url_tronosstv = build_url({"action": "tronosstv"})
     list_item_tronosstv = xbmcgui.ListItem(label="TronossTV")
     list_item_tronosstv.setProperty("IsPlayable", "false")
-    list_item_tronosstv.setArt({'icon': ICON_PATH, 'thumb': ICON_PATH, 'fanart': FANART_PATH})
+    list_item_tronosstv.setArt({'icon': '', 'thumb': ICON_PATH, 'fanart': FANART_PATH})
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=url_tronosstv, listitem=list_item_tronosstv, isFolder=True)
 
     url_tronossiptv = build_url({"action": "tronossiptv"})
     list_item_tronossiptv = xbmcgui.ListItem(label="TronossIPTV")
     list_item_tronossiptv.setProperty("IsPlayable", "false")
-    list_item_tronossiptv.setArt({'icon': ICON_PATH, 'thumb': ICON_PATH, 'fanart': FANART_PATH})
+    list_item_tronossiptv.setArt({'icon': '', 'thumb': ICON_PATH, 'fanart': FANART_PATH})
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=url_tronossiptv, listitem=list_item_tronossiptv, isFolder=True)
 
     xbmcplugin.endOfDirectory(addon_handle)
