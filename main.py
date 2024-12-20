@@ -179,7 +179,7 @@ def list_tronossiptv_channels():
             return
 
         for name, urls in channels.items():
-            url = urls[0] 
+            url = urls[0]  # Choose the first URL for simplicity
             list_item = xbmcgui.ListItem(to_utf8(name))
             list_item.setInfo("video", {"title": to_utf8(name)})
             list_item.setProperty("IsPlayable", "true")
@@ -201,13 +201,13 @@ def build_main_menu():
     url_tronosstv = build_url({"action": "tronosstv"})
     list_item_tronosstv = xbmcgui.ListItem(label="TronossTV")
     list_item_tronosstv.setProperty("IsPlayable", "false")
-    list_item_tronosstv.setArt({'icon': '', 'thumb': ICON_PATH, 'fanart': FANART_PATH})
+    list_item_tronosstv.setArt({'icon': ICON_PATH, 'thumb': ICON_PATH, 'fanart': FANART_PATH})
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=url_tronosstv, listitem=list_item_tronosstv, isFolder=True)
 
     url_tronossiptv = build_url({"action": "tronossiptv"})
     list_item_tronossiptv = xbmcgui.ListItem(label="TronossIPTV")
     list_item_tronossiptv.setProperty("IsPlayable", "false")
-    list_item_tronossiptv.setArt({'icon': '', 'thumb': ICON_PATH, 'fanart': FANART_PATH})
+    list_item_tronossiptv.setArt({'icon': ICON_PATH, 'thumb': ICON_PATH, 'fanart': FANART_PATH})
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=url_tronossiptv, listitem=list_item_tronossiptv, isFolder=True)
 
     xbmcplugin.endOfDirectory(addon_handle)
