@@ -189,73 +189,79 @@ def build_main_menu():
 
     xbmcplugin.endOfDirectory(addon_handle)
 
-def get_channels_from_vavoo():
-    url = "https://www2.vavoo.to/live2/index"
+def get_ts_channels():
+    """
+    Obtiene los canales desde la URL específica y los filtra por el grupo 'Spain'.
+    """
     try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            data = response.text
-            pattern = r'#EXTINF:-1.*group-title="Spain".*tvg-logo="([^"]+)".*?,(.+)\n(.+)'
-            channels = re.findall(pattern, data)
-            return [
-                {"name": name.strip(), "logo": logo.strip(), "url": url.strip()}
-                for logo, name, url in channels
-            ]
-        else:
-            xbmcgui.Dialog().notification("Error", f"HTTP {response.status_code}", xbmcgui.NOTIFICATION_ERROR)
-            return []
+        response = requests.get("https://www2.vavoo.to/live2/index", params={"output": "json"})
+        response.raise_for_status()
+        all_channels = response.json()
     except Exception as e:
-        xbmcgui.Dialog().notification("Error", str(e), xbmcgui.NOTIFICATION_ERROR)
+        xbmcgui.Dialog().notification("Error", f"No se pudieron obtener los canales: {e}", xbmcgui.NOTIFICATION_ERROR)
         return []
 
-def list_tronoss_iptv():
-    channels = get_channels_from_vavoo()
+    # Filtrar canales por el grupo "Spain"
+    spain_channels = [channel for channel in all_channels if channel.get("group") == "Spain"]
+    return spain_channels
+
+
+def list_tronoss_iptv_channels():
+    """
+    Lista los canales en la pestaña TronossIPTV.
+    """
+    channels = get_ts_channels()
     if not channels:
-        xbmcgui.Dialog().notification("Error", "No se encontraron canales en el grupo Spain.", xbmcgui.NOTIFICATION_WARNING)
+        xbmcgui.Dialog().notification("Error", "No se encontraron canales para el grupo 'Spain'", xbmcgui.NOTIFICATION_WARNING)
         xbmcplugin.endOfDirectory(addon_handle)
         return
 
     for channel in channels:
-        name = channel["name"]
-        logo = channel["logo"]
-        url = channel["url"]
-        
+        name = channel.get("name", "Sin nombre")
+        url = channel.get("url")
+        icon = channel.get("icon", ICON_PATH)  # Usa un ícono predeterminado si no se especifica uno
+
         list_item = xbmcgui.ListItem(to_utf8(name))
         list_item.setInfo("video", {"title": to_utf8(name)})
         list_item.setProperty("IsPlayable", "true")
         list_item.setArt({
-            'icon': logo,
-            'thumb': logo,
+            'icon': icon,
+            'thumb': icon,
             'fanart': FANART_PATH
         })
-        xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=list_item, isFolder=False)
+
+        xbmcplugin.addDirectoryItem(handle=addon_handle, url=build_url({"action": "play_iptv", "url": url}), listitem=list_item, isFolder=False)
 
     xbmcplugin.endOfDirectory(addon_handle)
 
-def play_channel_normal(url):
-    if not url:
-        xbmcgui.Dialog().notification("Error", "No hay URL disponible para este canal.", xbmcgui.NOTIFICATION_ERROR)
+
+def play_iptv_channel(channel_url):
+    """
+    Reproduce un canal de IPTV directamente.
+    """
+    if not channel_url:
+        xbmcgui.Dialog().notification("Error", "URL del canal no disponible", xbmcgui.NOTIFICATION_ERROR)
         return
 
-    try:
-        xbmc.Player().play(url)
-        xbmcgui.Dialog().notification("Reproduccion", "Canal en reproducción.", xbmcgui.NOTIFICATION_INFO)
-    except Exception as e:
-        xbmcgui.Dialog().notification("Error", str(e), xbmcgui.NOTIFICATION_ERROR)
+    play_item = xbmcgui.ListItem(path=channel_url)
+    xbmcplugin.setResolvedUrl(addon_handle, True, listitem=play_item)
+
 
 def router(args):
+    """
+    Redirecciona las acciones del addon.
+    """
     action = args.get("action", [None])[0]
     channel_url = args.get("url", [None])[0]
 
-    if action == "play" and channel_url:
-        play_channel_normal(channel_url)
+    if action == "play_iptv" and channel_url:
+        play_iptv_channel(channel_url)
+    elif action == "tronossiptv":
+        list_tronoss_iptv_channels()
     elif action == "tronosstv":
         list_channels()
-    elif action == "tronossiptv":
-        list_tronoss_iptv()
     else:
         build_main_menu()
-
 
 if __name__ == "__main__":
     if not check_remote_status():
