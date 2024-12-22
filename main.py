@@ -485,7 +485,7 @@ def router(args):
     if action == "play" and channel_id:
         play_channel(channel_id)
     elif action == "tronosstv":
-        list_channels()
+        list_channels(user)
     elif action == "agendatronoss":
          list_acestream_events()
     else:
