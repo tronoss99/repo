@@ -457,47 +457,39 @@ def router(args):
     channel_id = args.get("id", [None])[0]
 
     credentials = load_credentials()
-    user = None
-
-    if credentials:
-        username = credentials.get('username')
-        password = credentials.get('password')
-        if username and password: 
-            user = check_user(username, password)  
-            if not user:
-                xbmc.log("Credenciales inválidas. Eliminando archivo.", level=xbmc.LOGWARNING)
-                os.remove(CREDENTIALS_FILE)
-
-    if not user:
-        xbmcgui.Dialog().notification("Login requerido", "Por favor, inicia sesión.", xbmcgui.NOTIFICATION_WARNING)
+    if not credentials:
         username, password = prompt_for_credentials()
         if username and password:
             user = check_user(username, password)
             if user:
-                save_credentials(username, password) 
-
-    if not user:
-        xbmcgui.Dialog().notification("Error", "No se pudo autenticar al usuario.", xbmcgui.NOTIFICATION_ERROR)
-        xbmcplugin.endOfDirectory(addon_handle)
-        return
-
-    device_id = get_device_id()
-    if not device_marked_active:
-        if update_active_devices(user['id'], device_id, increment=True):
-            is_logged_in = True
-            user_id_global = user['id']
-            addon_active = True
-            device_marked_active = True
+                save_credentials(username, password)
+                device_id = get_device_id()
+                if update_active_devices(user['id'], device_id, increment=True):
+                    is_logged_in = True
+                    user_id_global = user['id']
+                    addon_active = True
+                    device_marked_active = True
+    else:
+        username = credentials['username']
+        password = credentials['password']
+        user = check_user(username, password)
+        if user:
+            device_id = get_device_id()
+            if not device_marked_active:
+                if update_active_devices(user['id'], device_id, increment=True):
+                    is_logged_in = True
+                    user_id_global = user['id']
+                    addon_active = True
+                    device_marked_active = True
 
     if action == "play" and channel_id:
         play_channel(channel_id)
     elif action == "tronosstv":
         list_channels(user)
     elif action == "agendatronoss":
-        list_acestream_events()
+         list_acestream_events()
     else:
         build_main_menu()
-
 
 if __name__ == "__main__":
     monitor = xbmc.Monitor()
