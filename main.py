@@ -76,20 +76,21 @@ for dependency in dependencies:
             xbmc.log(f"No se pudo instalar la dependencia {dependency['name']}.", level=xbmc.LOGERROR)
             sys.exit(1)
 
-try:
-    import mysql.connector
-    xbmc.log("Módulo mysql.connector importado correctamente.", level=xbmc.LOGINFO)
-except ImportError as e:
-    xbmcgui.Dialog().notification("Error", f"No se pudo importar mysql.connector: {e}", xbmcgui.NOTIFICATION_ERROR)
-    xbmc.log(f"Error importando mysql.connector: {e}", level=xbmc.LOGERROR)
-    sys.exit(1)
+addon_lib_path = xbmcvfs.translatePath('special://home/addons/plugin.video.tronosstv/resources/lib/')
+mysql_connector_path = xbmcvfs.translatePath('special://home/addons/plugin.video.tronosstv/resources/lib/mysql-connector-python/')
+
+if addon_lib_path not in sys.path:
+    sys.path.insert(0, addon_lib_path)
+
+if mysql_connector_path not in sys.path:
+    sys.path.insert(0, mysql_connector_path)
 
 try:
-    import requests
-    xbmc.log("Módulo requests importado correctamente.", level=xbmc.LOGINFO)
+    import mysql.connector
+    xbmc.log("mysql.connector importado correctamente.", level=xbmc.LOGINFO)
 except ImportError as e:
-    xbmcgui.Dialog().notification("Error", f"No se pudo importar requests: {e}", xbmcgui.NOTIFICATION_ERROR)
-    xbmc.log(f"Error importando requests: {e}", level=xbmc.LOGERROR)
+    xbmcgui.Dialog().notification("Error", f"No se pudo importar mysql.connector: {e}", xbmcgui.NOTIFICATION_ERROR)
+    xbmc.log(f"Error al importar mysql.connector: {e}", level=xbmc.LOGERROR)
     sys.exit(1)
 
 DB_HOST = "btu73hhmyjd94a9udngy-mysql.services.clever-cloud.com"
