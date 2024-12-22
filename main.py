@@ -160,16 +160,24 @@ def check_remote_status():
         return True
 
 def save_credentials(username, password):
-    os.makedirs(os.path.dirname(CREDENTIALS_FILE), exist_ok=True)
-    credentials = {"username": username, "password": password}
-    with open(CREDENTIALS_FILE, 'w') as f:
-        json.dump(credentials, f)
+    if username and password: 
+        os.makedirs(os.path.dirname(CREDENTIALS_FILE), exist_ok=True)
+        credentials = {"username": username, "password": password}
+        with open(CREDENTIALS_FILE, 'w') as f:
+            json.dump(credentials, f)
 
 def load_credentials():
     if os.path.exists(CREDENTIALS_FILE):
         with open(CREDENTIALS_FILE, 'r') as f:
-            return json.load(f)
+            try:
+                credentials = json.load(f)
+                if "username" in credentials and "password" in credentials:
+                    return credentials
+            except json.JSONDecodeError:
+                xbmc.log("Error leyendo el archivo de credenciales. Eliminando archivo corrupto.", level=xbmc.LOGWARNING)
+                os.remove(CREDENTIALS_FILE)
     return None
+
 
 def prompt_for_credentials():
     keyboard = xbmcgui.Dialog()
@@ -449,38 +457,37 @@ def router(args):
     channel_id = args.get("id", [None])[0]
 
     credentials = load_credentials()
-    user = None 
+    user = None
 
     if credentials:
-        username = credentials['username']
-        password = credentials['password']
-        user = check_user(username, password)  
-        if not user: 
-            xbmcgui.Dialog().notification("Login requerido", "Credenciales inválidas. Por favor, inicie sesión nuevamente.", xbmcgui.NOTIFICATION_WARNING)
-            username, password = prompt_for_credentials()
-            if username and password:
-                user = check_user(username, password)
-                if user:
-                    save_credentials(username, password)
-    else:
+        username = credentials.get('username')
+        password = credentials.get('password')
+        if username and password: 
+            user = check_user(username, password)  
+            if not user:
+                xbmc.log("Credenciales inválidas. Eliminando archivo.", level=xbmc.LOGWARNING)
+                os.remove(CREDENTIALS_FILE)
+
+    if not user:
+        xbmcgui.Dialog().notification("Login requerido", "Por favor, inicia sesión.", xbmcgui.NOTIFICATION_WARNING)
         username, password = prompt_for_credentials()
         if username and password:
             user = check_user(username, password)
             if user:
-                save_credentials(username, password)
+                save_credentials(username, password) 
 
-    if user:
-        device_id = get_device_id()
-        if not device_marked_active:
-            if update_active_devices(user['id'], device_id, increment=True):
-                is_logged_in = True
-                user_id_global = user['id']
-                addon_active = True
-                device_marked_active = True
-    else:
+    if not user:
         xbmcgui.Dialog().notification("Error", "No se pudo autenticar al usuario.", xbmcgui.NOTIFICATION_ERROR)
         xbmcplugin.endOfDirectory(addon_handle)
         return
+
+    device_id = get_device_id()
+    if not device_marked_active:
+        if update_active_devices(user['id'], device_id, increment=True):
+            is_logged_in = True
+            user_id_global = user['id']
+            addon_active = True
+            device_marked_active = True
 
     if action == "play" and channel_id:
         play_channel(channel_id)
@@ -490,6 +497,7 @@ def router(args):
         list_acestream_events()
     else:
         build_main_menu()
+
 
 if __name__ == "__main__":
     monitor = xbmc.Monitor()
