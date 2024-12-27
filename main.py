@@ -198,14 +198,58 @@ def check_user(username, password):
         return None
     cursor = connection.cursor(dictionary=True)
     try:
-        query = "SELECT users.*, users.max_devices FROM users WHERE username = %s"
+        query = "SELECT users.*, plans.name AS plan_name FROM users JOIN plans ON users.plan_id = plans.id WHERE username = %s"
         cursor.execute(query, (username,))
         user = cursor.fetchone()
         if user and hash_password(password) == user['password_hash']:
-            if user['active_devices'] >= user['max_devices']:
-                xbmcgui.Dialog().notification("Error", "Dispositivos máximos alcanzados", xbmcgui.NOTIFICATION_ERROR)
+            expiry_date = user.get('expiry_date')
+            if expiry_date:
+                current_date = datetime.now()
+                if current_date > expiry_date:
+                    xbmcgui.Dialog().notification(
+                        "Cuenta Expirada",
+                        "Tu cuenta ha expirado. Por favor, renueva tu suscripción.",
+                        xbmcgui.NOTIFICATION_ERROR
+                    )
+                    xbmc.log(f"Cuenta del usuario {username} ha expirado el {expiry_date}.", level=xbmc.LOGINFO)
+                    return None
+            else:
+                xbmcgui.Dialog().notification(
+                    "Error",
+                    "La cuenta no tiene una fecha de expiración válida.",
+                    xbmcgui.NOTIFICATION_ERROR
+                )
+                xbmc.log(f"Usuario {username} no tiene una fecha de expiración válida.", level=xbmc.LOGERROR)
                 return None
+
+            if user['active_devices'] >= user['max_devices']:
+                xbmcgui.Dialog().notification(
+                    "Error",
+                    "Dispositivos máximos alcanzados",
+                    xbmcgui.NOTIFICATION_ERROR
+                )
+                xbmc.log(f"Usuario {username} ha alcanzado el número máximo de dispositivos.", level=xbmc.LOGINFO)
+                return None
+
+            user['plan_name'] = user.get('plan_name')
+            user['expiry_date'] = expiry_date
+
             return user
+        else:
+            xbmcgui.Dialog().notification(
+                "Error",
+                "Usuario o contraseña incorrectos.",
+                xbmcgui.NOTIFICATION_ERROR
+            )
+            xbmc.log(f"Intento de acceso fallido para el usuario {username}.", level=xbmc.LOGWARNING)
+            return None
+    except Exception as e:
+        xbmcgui.Dialog().notification(
+            "Error",
+            f"Error al verificar el usuario: {e}",
+            xbmcgui.NOTIFICATION_ERROR
+        )
+        xbmc.log(f"Error en check_user: {e}", level=xbmc.LOGERROR)
         return None
     finally:
         cursor.close()
@@ -453,43 +497,74 @@ def on_exit():
 
 def router(args):
     global user_id_global, is_logged_in, addon_active, device_marked_active, current_device_id
-    action = args.get("action", [None])[0]
-    channel_id = args.get("id", [None])[0]
-
-    credentials = load_credentials()
-    if not credentials:
-        username, password = prompt_for_credentials()
-        if username and password:
+    
+    if not check_remote_status():
+        sys.exit(0)
+    
+    if not is_logged_in:
+        credentials = load_credentials()
+        if not credentials:
+            username, password = prompt_for_credentials()
+            if username and password:
+                user = check_user(username, password)
+                if user:
+                    save_credentials(username, password)
+                    device_id = get_device_id()
+                    if update_active_devices(user['id'], device_id, increment=True):
+                        is_logged_in = True
+                        user_id_global = user['id']
+                        addon_active = True
+                        device_marked_active = True
+                        plan_name = user.get('name')  
+                        expiry_date = user.get('expiry_date')
+                        if plan_name and expiry_date:
+                            formatted_date = expiry_date.strftime("%d/%m/%Y")
+                            xbmcgui.Dialog().notification(
+                                "Inicio de Sesión Exitoso",
+                                f"Plan: {plan_name}\nExpira el: {formatted_date}",
+                                xbmcgui.NOTIFICATION_INFO,
+                                5000
+                            )
+        else:
+            username = credentials['username']
+            password = credentials['password']
             user = check_user(username, password)
             if user:
-                save_credentials(username, password)
                 device_id = get_device_id()
-                if update_active_devices(user['id'], device_id, increment=True):
-                    is_logged_in = True
-                    user_id_global = user['id']
-                    addon_active = True
-                    device_marked_active = True
-    else:
-        username = credentials['username']
-        password = credentials['password']
-        user = check_user(username, password)
-        if user:
-            device_id = get_device_id()
-            if not device_marked_active:
-                if update_active_devices(user['id'], device_id, increment=True):
-                    is_logged_in = True
-                    user_id_global = user['id']
-                    addon_active = True
-                    device_marked_active = True
-
+                if not device_marked_active:
+                    if update_active_devices(user['id'], device_id, increment=True):
+                        is_logged_in = True
+                        user_id_global = user['id']
+                        addon_active = True
+                        device_marked_active = True
+                        plan_name = user.get('name')
+                        expiry_date = user.get('expiry_date')
+                        if plan_name and expiry_date:
+                            formatted_date = expiry_date.strftime("%d/%m/%Y")
+                            xbmcgui.Dialog().notification(
+                                "Inicio de Sesión Exitoso",
+                                f"Plan: {plan_name}\nExpira el: {formatted_date}",
+                                xbmcgui.NOTIFICATION_INFO,
+                                5000
+                            )
+    
+    if not is_logged_in:
+        xbmcplugin.endOfDirectory(addon_handle)
+        return
+    
+    # Procesar las acciones del addon
+    action = args.get("action", [None])[0]
+    channel_id = args.get("id", [None])[0]
+    
     if action == "play" and channel_id:
         play_channel(channel_id)
     elif action == "tronosstv":
-        list_channels(user)
+        list_channels()
     elif action == "agendatronoss":
-         list_acestream_events()
+        list_acestream_events()
     else:
         build_main_menu()
+
 
 if __name__ == "__main__":
     monitor = xbmc.Monitor()
