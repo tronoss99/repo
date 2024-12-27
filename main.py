@@ -32,17 +32,13 @@ def download_and_unzip_kodi(url, dependency_name, output_dir):
     try:
         temp_path = xbmcvfs.translatePath('special://temp/')
         local_path = os.path.join(temp_path, f"{dependency_name}.zip")
-
         xbmc.log(f"Descargando {dependency_name} desde {url}...", level=xbmc.LOGINFO)
         response = requests.get(url, stream=True)
         response.raise_for_status()
-
         with open(local_path, 'wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
-
         xbmc.log(f"Archivo descargado: {local_path}", level=xbmc.LOGINFO)
-
         if zipfile.is_zipfile(local_path):
             with zipfile.ZipFile(local_path, 'r') as zip_ref:
                 zip_ref.extractall(output_dir)
@@ -50,7 +46,6 @@ def download_and_unzip_kodi(url, dependency_name, output_dir):
         else:
             xbmcgui.Dialog().notification("Error", "Archivo no soportado", xbmcgui.NOTIFICATION_ERROR)
             return False
-
         os.remove(local_path)
         xbmc.log(f"Archivo temporal eliminado: {local_path}", level=xbmc.LOGINFO)
         return True
@@ -122,6 +117,8 @@ addon_active = False
 device_marked_active = False
 current_device_id = None
 current_user = None 
+
+addon = xbmcaddon.Addon()
 
 def connect_db():
     try:
@@ -226,7 +223,6 @@ def check_user(username, password):
                     return None
             else:
                 xbmc.log(f"Usuario {username} tiene una cuenta ilimitada.", level=xbmc.LOGINFO)
-            
             if user['active_devices'] >= user['max_devices']:
                 xbmcgui.Dialog().notification(
                     "Error",
@@ -235,10 +231,8 @@ def check_user(username, password):
                 )
                 xbmc.log(f"Usuario {username} ha alcanzado el número máximo de dispositivos.", level=xbmc.LOGINFO)
                 return None
-
             user['plan_name'] = user.get('plan_name')
             user['expiry_date'] = expiry_date
-
             return user
         else:
             xbmcgui.Dialog().notification(
@@ -261,19 +255,11 @@ def check_user(username, password):
         connection.close()
 
 def show_account_info(user):
-    if xbmcvfs.exists(SESSION_INFO_FILE):
-        with open(SESSION_INFO_FILE, 'r') as f:
-            try:
-                session_info = json.load(f)
-                if session_info.get('account_info_shown', False):
-                    return
-            except json.JSONDecodeError:
-                pass  
-    
+    if addon.getSetting('account_info_shown') == '1':
+        return
     plan_name = user.get('plan_name')
     expiry_date = user.get('expiry_date')
     max_devices = user.get('max_devices', 'N/A')  
-
     if plan_name:
         message = f"Plan: {plan_name}\nMáximo de dispositivos: {max_devices}"
         if expiry_date:
@@ -283,7 +269,6 @@ def show_account_info(user):
             message += f"\nExpira el: {formatted_date}"
         else:
             message += "\nExpiración: Ilimitada"
-        
         xbmcgui.Dialog().notification(
             "Inicio de Sesión Exitoso",
             message,
@@ -291,10 +276,7 @@ def show_account_info(user):
             5000
         )
         xbmc.log(f"Información de cuenta mostrada para el usuario {user['username']}.", level=xbmc.LOGINFO)
-        
-        os.makedirs(os.path.dirname(SESSION_INFO_FILE), exist_ok=True)
-        with open(SESSION_INFO_FILE, 'w') as f:
-            json.dump({'account_info_shown': True}, f)
+        addon.setSetting('account_info_shown', '1')
 
 def get_device_id():
     global current_device_id
@@ -317,7 +299,6 @@ def update_active_devices(user_id, device_id, increment=True):
     if not connection:
         xbmc.log("No se pudo conectar a la base de datos", level=xbmc.LOGERROR)
         return False
-
     cursor = connection.cursor()
     try:
         cursor.execute("SELECT device_id, active_devices FROM users WHERE id = %s", (user_id,))
@@ -325,37 +306,30 @@ def update_active_devices(user_id, device_id, increment=True):
         if not result:
             xbmc.log("No se encontró el usuario en la base de datos", level=xbmc.LOGERROR)
             return False
-
         current_device_ids = result[0] if result[0] else ""
         active_devices = result[1] if len(result) > 1 else 0
         device_list = current_device_ids.split(",") if current_device_ids else []
-
         if increment:
             if device_id in device_list:
                 xbmc.log(f"Dispositivo ya activo: {device_id}", level=xbmc.LOGINFO)
                 return True
-
             device_list.append(device_id)
             updated_device_ids = ",".join(device_list)
             query = "UPDATE users SET active_devices = active_devices + 1, device_id = %s WHERE id = %s"
             cursor.execute(query, (updated_device_ids, user_id))
             xbmc.log(f"Dispositivo {device_id} añadido para el usuario {user_id}.", level=xbmc.LOGINFO)
-
         else:
             if device_id not in device_list:
                 xbmc.log(f"El dispositivo {device_id} no está en la lista para el usuario {user_id}", level=xbmc.LOGINFO)
                 return True
-
             device_list = [d for d in device_list if d != device_id]
             updated_device_ids = ",".join(device_list)
             query = "UPDATE users SET active_devices = active_devices - 1, device_id = %s WHERE id = %s"
             cursor.execute(query, (updated_device_ids, user_id))
             xbmc.log(f"Dispositivo {device_id} removido para el usuario {user_id}.", level=xbmc.LOGINFO)
-
         connection.commit()
         xbmc.log(f"Dispositivos activos actualizados para usuario {user_id}: {updated_device_ids}", level=xbmc.LOGINFO)
         return True
-
     except Exception as e:
         xbmc.log(f"Error en update_active_devices: {e}", level=xbmc.LOGERROR)
         return False
@@ -382,18 +356,16 @@ def build_url(query):
     return f"{base_url}?{urllib.parse.urlencode(query)}"
 
 def list_channels(user):
-    xbmc.executebuiltin('Container.SetViewMode(511)') 
+    xbmc.executebuiltin('Container.SetViewMode(511)')
     content = get_page_content(ACESTREAM_URL)
     if not content:
         xbmcplugin.endOfDirectory(addon_handle)
         return
-
     channels = extract_acestream_links(content)
     if not channels:
         xbmcgui.Dialog().notification("Error", "No se encontraron canales", xbmcgui.NOTIFICATION_WARNING)
         xbmcplugin.endOfDirectory(addon_handle)
         return
-
     for name, channel_id in channels:
         url = build_url({"action": "play", "id": channel_id}) if channel_id else ""
         list_item = xbmcgui.ListItem(name)
@@ -405,7 +377,6 @@ def list_channels(user):
             'fanart': FANART_PATH
         })
         xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=list_item, isFolder=False)
-
     xbmcplugin.endOfDirectory(addon_handle)
 
 def extract_acestream_links(content):
@@ -436,21 +407,17 @@ def extract_acestream_links(content):
 def extract_acestream_events(content):
     xbmc.log("Iniciando extracción de eventos", level=xbmc.LOGINFO)
     events = []
-
     row_pattern = r"<tr>(.*?)</tr>"
     rows = re.findall(row_pattern, content, re.DOTALL)
     xbmc.log(f"Filas encontradas: {len(rows)}", level=xbmc.LOGINFO)
-
     for row in rows:
         xbmc.log(f"Procesando fila: {row}", level=xbmc.LOGDEBUG)
         columns = re.findall(r"<td>(.*?)</td>", row, re.DOTALL)
         if len(columns) < 5:
             xbmc.log("Fila inválida, se omite.", level=xbmc.LOGWARNING)
             continue
-
         time, competition, team1, team2, links = columns[:5]
         xbmc.log(f"Datos extraídos: {time}, {competition}, {team1}, {team2}", level=xbmc.LOGINFO)
-
         link_pattern = r"<a href=acestream://([a-fA-F0-9]+)>(.*?)</a>"
         link_matches = re.findall(link_pattern, links)
         for channel_id, channel_name in link_matches:
@@ -462,7 +429,6 @@ def extract_acestream_events(content):
                 "channel_id": channel_id.strip(),
             }
             events.append(event)
-
     xbmc.log(f"Eventos extraídos: {len(events)}", level=xbmc.LOGINFO)
     return events
 
@@ -474,14 +440,12 @@ def list_acestream_events(user):
         xbmcgui.Dialog().notification("Error", "No se pudo obtener contenido de la página.", xbmcgui.NOTIFICATION_ERROR)
         xbmcplugin.endOfDirectory(addon_handle)
         return
-
     events = extract_acestream_events(content)
     if not events:
         xbmc.log("No se encontraron eventos.", level=xbmc.LOGWARNING)
         xbmcgui.Dialog().notification("Error", "No se encontraron eventos.", xbmcgui.NOTIFICATION_WARNING)
         xbmcplugin.endOfDirectory(addon_handle)
         return
-
     for event in events:
         url = build_url({"action": "play", "id": event["channel_id"]})
         list_item = xbmcgui.ListItem(label=f"{event['time']} | {event['competition']} | {event['teams']}")
@@ -492,9 +456,7 @@ def list_acestream_events(user):
             "thumb": ICON_PATH,
             "fanart": FANART_PATH
         })
-
         xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=list_item, isFolder=False)
-
     xbmc.log("Finalizando list_acestream_events", level=xbmc.LOGINFO)
     xbmcplugin.endOfDirectory(addon_handle)
 
@@ -502,7 +464,6 @@ def play_channel(channel_id):
     if not channel_id:
         xbmcgui.Dialog().notification("Error", "Canal sin ID disponible", xbmcgui.NOTIFICATION_ERROR)
         return
-
     horus_command = f'RunPlugin("plugin://script.module.horus/?action=play&id={channel_id}")'
     try:
         xbmc.executebuiltin(horus_command)
@@ -512,25 +473,21 @@ def play_channel(channel_id):
         xbmc.log(f"Error al ejecutar Horus: {e}", level=xbmc.LOGERROR)
 
 def build_main_menu():
-    xbmc.executebuiltin('Container.SetViewMode(55)') 
-
+    xbmc.executebuiltin('Container.SetViewMode(55)')
     url_tronosstv = build_url({"action": "tronosstv"})
     list_item_tronosstv = xbmcgui.ListItem(label="TronossTV")
     list_item_tronosstv.setProperty("IsPlayable", "false")
     list_item_tronosstv.setArt({'icon': '', 'thumb': ICON_PATH, 'fanart': FANART_PATH})
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=url_tronosstv, listitem=list_item_tronosstv, isFolder=True)
-
     url_agendatronoss = build_url({"action": "agendatronoss"})
     list_item_agendatronoss = xbmcgui.ListItem(label="Agenda Tronoss")
     list_item_agendatronoss.setProperty("IsPlayable", "false")
     list_item_agendatronoss.setArt({'icon': '', 'thumb': ICON_PATH, 'fanart': FANART_PATH})
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=url_agendatronoss, listitem=list_item_agendatronoss, isFolder=True)
-
     xbmcplugin.endOfDirectory(addon_handle)
 
 def on_exit():
     global user_id_global, is_logged_in, addon_active, device_marked_active, current_device_id, current_user
-
     if user_id_global and is_logged_in and addon_active and device_marked_active:
         xbmc.log(f"Reduciendo dispositivos activos para el usuario {user_id_global}", level=xbmc.LOGINFO)
         success = update_active_devices(user_id_global, current_device_id, increment=False)
@@ -538,11 +495,7 @@ def on_exit():
             xbmc.log(f"Dispositivo {current_device_id} desactivado correctamente para el usuario {user_id_global}", level=xbmc.LOGINFO)
         else:
             xbmc.log(f"Error al desactivar el dispositivo {current_device_id} para el usuario {user_id_global}", level=xbmc.LOGERROR)
-
-    if xbmcvfs.exists(SESSION_INFO_FILE):
-        os.remove(SESSION_INFO_FILE)
-        xbmc.log("Archivo session_info.json eliminado.", level=xbmc.LOGINFO)
-
+    addon.setSetting('account_info_shown', '0')
     is_logged_in = False
     addon_active = False
     device_marked_active = False
@@ -550,12 +503,36 @@ def on_exit():
     current_user = None
     xbmc.log("Estado de sesión limpiado correctamente.", level=xbmc.LOGINFO)
 
+def download_main_script():
+    try:
+        original_notification = xbmcgui.Dialog().notification
+        def no_op_notification(*args, **kwargs):
+            pass
+        xbmcgui.Dialog().notification = no_op_notification
+        response = requests.get(UPDATE_URL)
+        if response.status_code == 200:
+            with open(MAIN_SCRIPT_PATH, 'wb') as f:
+                f.write(response.content)
+        else:
+            xbmcgui.Dialog().notification("Error", f"No se pudo descargar la actualización. Código HTTP: {response.status_code}", xbmcgui.NOTIFICATION_ERROR, 3000)
+            xbmc.log(f"Error HTTP {response.status_code} al acceder a {UPDATE_URL}", level=xbmc.LOGERROR)
+        xbmcgui.Dialog().notification = original_notification
+    except Exception as e:
+        xbmcgui.Dialog().notification("Error", f"No se pudo actualizar el addon: {e}", xbmcgui.NOTIFICATION_ERROR, 3000)
+        xbmc.log(f"Error en la actualización: {e}", level=xbmc.LOGERROR)
+
+def execute_main_script():
+    try:
+        with open(MAIN_SCRIPT_PATH, 'rb') as f:
+            exec(compile(f.read(), MAIN_SCRIPT_PATH, 'exec'), globals())
+    except Exception as e:
+        xbmcgui.Dialog().notification("Error de Ejecución", f"No se pudo ejecutar main.py: {e}", xbmcgui.NOTIFICATION_ERROR, 3000)
+        xbmc.log(f"Error al ejecutar main.py: {e}", level=xbmc.LOGERROR)
+
 def router(args):
     global user_id_global, is_logged_in, addon_active, device_marked_active, current_device_id, current_user
-
     if not check_remote_status():
         sys.exit(0)
-
     if not is_logged_in:
         credentials = load_credentials()
         if not credentials:
@@ -570,7 +547,7 @@ def router(args):
                         user_id_global = user['id']
                         addon_active = True
                         device_marked_active = True
-                        current_user = user  
+                        current_user = user
                         show_account_info(user)
                     else:
                         xbmcgui.Dialog().notification("Error", "No se pudo registrar el dispositivo.", xbmcgui.NOTIFICATION_ERROR)
@@ -586,7 +563,7 @@ def router(args):
                         user_id_global = user['id']
                         addon_active = True
                         device_marked_active = True
-                        current_user = user 
+                        current_user = user
                         show_account_info(user)
             else:
                 if os.path.exists(CREDENTIALS_FILE):
@@ -603,18 +580,15 @@ def router(args):
                             user_id_global = user['id']
                             addon_active = True
                             device_marked_active = True
-                            current_user = user 
+                            current_user = user
                             show_account_info(user)
                         else:
                             xbmcgui.Dialog().notification("Error", "No se pudo registrar el dispositivo.", xbmcgui.NOTIFICATION_ERROR)
-
     if not is_logged_in:
         xbmcplugin.endOfDirectory(addon_handle)
         return
-
     action = args.get("action", [None])[0]
     channel_id = args.get("id", [None])[0]
-
     if action == "play" and channel_id:
         play_channel(channel_id)
     elif action == "tronosstv":
@@ -627,6 +601,9 @@ def router(args):
             list_acestream_events(current_user)
         else:
             xbmcplugin.endOfDirectory(addon_handle)
+    elif action == "update":
+        download_main_script()
+        execute_main_script()
     else:
         build_main_menu()
 
