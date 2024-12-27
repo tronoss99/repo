@@ -14,6 +14,7 @@ from datetime import datetime
 import json
 import uuid
 import requests
+import xbmcaddon
 
 def list_dependencies():
     return [
@@ -106,6 +107,7 @@ ICON_PATH = xbmcvfs.translatePath('special://home/addons/plugin.video.tronosstv/
 FANART_PATH = xbmcvfs.translatePath('special://home/addons/plugin.video.tronosstv/resources/fanart.jpg')
 CREDENTIALS_FILE = xbmcvfs.translatePath('special://profile/addon_data/plugin.video.tronosstv/credentials.json')
 DEVICE_ID_FILE = xbmcvfs.translatePath('special://profile/addon_data/plugin.video.tronosstv/device_id.json')
+SESSION_INFO_FILE = xbmcvfs.translatePath('special://profile/addon_data/plugin.video.tronosstv/session_info.json')
 REMOTE_STATUS_URL = "https://raw.githubusercontent.com/tronoss99/repo/main/status.json"
 UPDATE_URL = "https://raw.githubusercontent.com/tronoss99/repo/main/main.py"
 DEPENDENCIES_URL = "https://tronoss99.github.io/repo/addons/dependencias"
@@ -119,7 +121,7 @@ is_logged_in = False
 addon_active = False 
 device_marked_active = False
 current_device_id = None
-account_info_shown = False
+current_user = None 
 
 def connect_db():
     try:
@@ -259,9 +261,15 @@ def check_user(username, password):
         connection.close()
 
 def show_account_info(user):
-    global account_info_shown
-    if account_info_shown:
-        return
+    if xbmcvfs.exists(SESSION_INFO_FILE):
+        with open(SESSION_INFO_FILE, 'r') as f:
+            try:
+                session_info = json.load(f)
+                if session_info.get('account_info_shown', False):
+                    return
+            except json.JSONDecodeError:
+                pass  
+    
     plan_name = user.get('plan_name')
     expiry_date = user.get('expiry_date')
     max_devices = user.get('max_devices', 'N/A')  
@@ -283,8 +291,11 @@ def show_account_info(user):
             5000
         )
         xbmc.log(f"Información de cuenta mostrada para el usuario {user['username']}.", level=xbmc.LOGINFO)
-        account_info_shown = True
         
+        os.makedirs(os.path.dirname(SESSION_INFO_FILE), exist_ok=True)
+        with open(SESSION_INFO_FILE, 'w') as f:
+            json.dump({'account_info_shown': True}, f)
+
 def get_device_id():
     global current_device_id
     if current_device_id:  
@@ -295,6 +306,7 @@ def get_device_id():
             xbmc.log(f"ID de dispositivo cargado: {current_device_id}", level=xbmc.LOGINFO)
     else:
         current_device_id = str(uuid.uuid4())
+        os.makedirs(os.path.dirname(DEVICE_ID_FILE), exist_ok=True)
         with open(DEVICE_ID_FILE, 'w') as f:
             json.dump({"device_id": current_device_id}, f)
         xbmc.log(f"Nuevo ID de dispositivo generado: {current_device_id}", level=xbmc.LOGINFO)
@@ -370,7 +382,7 @@ def build_url(query):
     return f"{base_url}?{urllib.parse.urlencode(query)}"
 
 def list_channels(user):
-    xbmc.executebuiltin('Container.SetViewMode(511)')
+    xbmc.executebuiltin('Container.SetViewMode(511)') 
     content = get_page_content(ACESTREAM_URL)
     if not content:
         xbmcplugin.endOfDirectory(addon_handle)
@@ -462,7 +474,7 @@ def list_acestream_events(user):
         xbmcgui.Dialog().notification("Error", "No se pudo obtener contenido de la página.", xbmcgui.NOTIFICATION_ERROR)
         xbmcplugin.endOfDirectory(addon_handle)
         return
-    
+
     events = extract_acestream_events(content)
     if not events:
         xbmc.log("No se encontraron eventos.", level=xbmc.LOGWARNING)
@@ -500,7 +512,7 @@ def play_channel(channel_id):
         xbmc.log(f"Error al ejecutar Horus: {e}", level=xbmc.LOGERROR)
 
 def build_main_menu():
-    xbmc.executebuiltin('Container.SetViewMode(55)')
+    xbmc.executebuiltin('Container.SetViewMode(55)') 
 
     url_tronosstv = build_url({"action": "tronosstv"})
     list_item_tronosstv = xbmcgui.ListItem(label="TronossTV")
@@ -517,7 +529,7 @@ def build_main_menu():
     xbmcplugin.endOfDirectory(addon_handle)
 
 def on_exit():
-    global user_id_global, is_logged_in, addon_active, device_marked_active, current_device_id
+    global user_id_global, is_logged_in, addon_active, device_marked_active, current_device_id, current_user
 
     if user_id_global and is_logged_in and addon_active and device_marked_active:
         xbmc.log(f"Reduciendo dispositivos activos para el usuario {user_id_global}", level=xbmc.LOGINFO)
@@ -527,18 +539,23 @@ def on_exit():
         else:
             xbmc.log(f"Error al desactivar el dispositivo {current_device_id} para el usuario {user_id_global}", level=xbmc.LOGERROR)
 
+    if xbmcvfs.exists(SESSION_INFO_FILE):
+        os.remove(SESSION_INFO_FILE)
+        xbmc.log("Archivo session_info.json eliminado.", level=xbmc.LOGINFO)
+
     is_logged_in = False
     addon_active = False
     device_marked_active = False
     current_device_id = None
+    current_user = None
     xbmc.log("Estado de sesión limpiado correctamente.", level=xbmc.LOGINFO)
 
 def router(args):
-    global user_id_global, is_logged_in, addon_active, device_marked_active, current_device_id
-    
+    global user_id_global, is_logged_in, addon_active, device_marked_active, current_device_id, current_user
+
     if not check_remote_status():
         sys.exit(0)
-    
+
     if not is_logged_in:
         credentials = load_credentials()
         if not credentials:
@@ -553,6 +570,7 @@ def router(args):
                         user_id_global = user['id']
                         addon_active = True
                         device_marked_active = True
+                        current_user = user  
                         show_account_info(user)
                     else:
                         xbmcgui.Dialog().notification("Error", "No se pudo registrar el dispositivo.", xbmcgui.NOTIFICATION_ERROR)
@@ -568,6 +586,7 @@ def router(args):
                         user_id_global = user['id']
                         addon_active = True
                         device_marked_active = True
+                        current_user = user 
                         show_account_info(user)
             else:
                 if os.path.exists(CREDENTIALS_FILE):
@@ -584,6 +603,7 @@ def router(args):
                             user_id_global = user['id']
                             addon_active = True
                             device_marked_active = True
+                            current_user = user 
                             show_account_info(user)
                         else:
                             xbmcgui.Dialog().notification("Error", "No se pudo registrar el dispositivo.", xbmcgui.NOTIFICATION_ERROR)
@@ -591,16 +611,22 @@ def router(args):
     if not is_logged_in:
         xbmcplugin.endOfDirectory(addon_handle)
         return
-    
+
     action = args.get("action", [None])[0]
     channel_id = args.get("id", [None])[0]
-    
+
     if action == "play" and channel_id:
         play_channel(channel_id)
     elif action == "tronosstv":
-        list_channels(user)
+        if current_user:
+            list_channels(current_user)
+        else:
+            xbmcplugin.endOfDirectory(addon_handle)
     elif action == "agendatronoss":
-        list_acestream_events(user)
+        if current_user:
+            list_acestream_events(current_user)
+        else:
+            xbmcplugin.endOfDirectory(addon_handle)
     else:
         build_main_menu()
 
