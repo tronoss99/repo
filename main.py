@@ -132,6 +132,7 @@ def connect_db():
         return connection
     except mysql.connector.Error as e:
         xbmcgui.Dialog().notification("Error DB", f"No se pudo conectar: {e}", xbmcgui.NOTIFICATION_ERROR)
+        xbmc.log(f"Error en la conexión a la base de datos: {e}", level=xbmc.LOGERROR)
         return None
 
 def to_utf8(text):
@@ -147,7 +148,7 @@ def check_remote_status():
             if status_data.get("status") == "mantenimiento":
                 xbmcgui.Dialog().ok(
                     to_utf8("Mantenimiento"),
-                    to_utf8(status_data.get("message", "El addon esta en mantenimiento."))
+                    to_utf8(status_data.get("message", "El addon está en mantenimiento."))
                 )
                 return False  
         return True
@@ -157,6 +158,7 @@ def check_remote_status():
             to_utf8(f"No se pudo verificar el estado remoto: {e}"),
             xbmcgui.NOTIFICATION_ERROR
         )
+        xbmc.log(f"Error al verificar el estado remoto: {e}", level=xbmc.LOGERROR)
         return True
 
 def save_credentials(username, password):
@@ -165,6 +167,7 @@ def save_credentials(username, password):
         credentials = {"username": username, "password": password}
         with open(CREDENTIALS_FILE, 'w') as f:
             json.dump(credentials, f)
+        xbmc.log(f"Credenciales guardadas para el usuario {username}.", level=xbmc.LOGINFO)
 
 def load_credentials():
     if os.path.exists(CREDENTIALS_FILE):
@@ -172,12 +175,12 @@ def load_credentials():
             try:
                 credentials = json.load(f)
                 if "username" in credentials and "password" in credentials:
+                    xbmc.log(f"Credenciales cargadas para el usuario {credentials['username']}.", level=xbmc.LOGINFO)
                     return credentials
             except json.JSONDecodeError:
                 xbmc.log("Error leyendo el archivo de credenciales. Eliminando archivo corrupto.", level=xbmc.LOGWARNING)
                 os.remove(CREDENTIALS_FILE)
     return None
-
 
 def prompt_for_credentials():
     keyboard = xbmcgui.Dialog()
@@ -214,6 +217,9 @@ def check_user(username, password):
                         xbmcgui.NOTIFICATION_ERROR
                     )
                     xbmc.log(f"Cuenta del usuario {username} ha expirado el {expiry_date}.", level=xbmc.LOGINFO)
+                    if os.path.exists(CREDENTIALS_FILE):
+                        os.remove(CREDENTIALS_FILE)
+                        xbmc.log(f"Archivo de credenciales eliminado para el usuario {username}.", level=xbmc.LOGINFO)
                     return None
             else:
                 xbmc.log(f"Usuario {username} tiene una cuenta ilimitada.", level=xbmc.LOGINFO)
@@ -251,13 +257,13 @@ def check_user(username, password):
         cursor.close()
         connection.close()
 
-
 def show_account_info(user):
     plan_name = user.get('plan_name')
     expiry_date = user.get('expiry_date')
-    
+    max_devices = user.get('max_devices', 'N/A')  
+
     if plan_name:
-        message = f"Plan: {plan_name}"
+        message = f"Plan: {plan_name}\nMáximo de dispositivos: {max_devices}"
         if expiry_date:
             if isinstance(expiry_date, str):
                 expiry_date = datetime.strptime(expiry_date, "%Y-%m-%d %H:%M:%S")
@@ -272,7 +278,7 @@ def show_account_info(user):
             xbmcgui.NOTIFICATION_INFO,
             5000
         )
-
+        xbmc.log(f"Información de cuenta mostrada para el usuario {user['username']}.", level=xbmc.LOGINFO)
 
 def get_device_id():
     global current_device_id
@@ -281,10 +287,12 @@ def get_device_id():
     if os.path.exists(DEVICE_ID_FILE):
         with open(DEVICE_ID_FILE, 'r') as f:
             current_device_id = json.load(f).get("device_id")
+            xbmc.log(f"ID de dispositivo cargado: {current_device_id}", level=xbmc.LOGINFO)
     else:
         current_device_id = str(uuid.uuid4())
         with open(DEVICE_ID_FILE, 'w') as f:
             json.dump({"device_id": current_device_id}, f)
+        xbmc.log(f"Nuevo ID de dispositivo generado: {current_device_id}", level=xbmc.LOGINFO)
     return current_device_id
 
 def update_active_devices(user_id, device_id, increment=True):
@@ -295,13 +303,14 @@ def update_active_devices(user_id, device_id, increment=True):
 
     cursor = connection.cursor()
     try:
-        cursor.execute("SELECT device_id FROM users WHERE id = %s", (user_id,))
+        cursor.execute("SELECT device_id, active_devices FROM users WHERE id = %s", (user_id,))
         result = cursor.fetchone()
         if not result:
             xbmc.log("No se encontró el usuario en la base de datos", level=xbmc.LOGERROR)
             return False
 
         current_device_ids = result[0] if result[0] else ""
+        active_devices = result[1] if len(result) > 1 else 0
         device_list = current_device_ids.split(",") if current_device_ids else []
 
         if increment:
@@ -313,6 +322,7 @@ def update_active_devices(user_id, device_id, increment=True):
             updated_device_ids = ",".join(device_list)
             query = "UPDATE users SET active_devices = active_devices + 1, device_id = %s WHERE id = %s"
             cursor.execute(query, (updated_device_ids, user_id))
+            xbmc.log(f"Dispositivo {device_id} añadido para el usuario {user_id}.", level=xbmc.LOGINFO)
 
         else:
             if device_id not in device_list:
@@ -323,6 +333,7 @@ def update_active_devices(user_id, device_id, increment=True):
             updated_device_ids = ",".join(device_list)
             query = "UPDATE users SET active_devices = active_devices - 1, device_id = %s WHERE id = %s"
             cursor.execute(query, (updated_device_ids, user_id))
+            xbmc.log(f"Dispositivo {device_id} removido para el usuario {user_id}.", level=xbmc.LOGINFO)
 
         connection.commit()
         xbmc.log(f"Dispositivos activos actualizados para usuario {user_id}: {updated_device_ids}", level=xbmc.LOGINFO)
@@ -335,7 +346,6 @@ def update_active_devices(user_id, device_id, increment=True):
         cursor.close()
         connection.close()
 
-       
 def get_page_content(url):
     try:
         response = requests.get(url)
@@ -344,9 +354,11 @@ def get_page_content(url):
             return response.text
         else:
             xbmcgui.Dialog().notification("Error", f"HTTP {response.status_code}", xbmcgui.NOTIFICATION_ERROR)
+            xbmc.log(f"Error HTTP {response.status_code} al acceder a {url}", level=xbmc.LOGERROR)
             return ""
     except Exception as e:
         xbmcgui.Dialog().notification("Error", str(e), xbmcgui.NOTIFICATION_ERROR)
+        xbmc.log(f"Error al obtener contenido de {url}: {e}", level=xbmc.LOGERROR)
         return ""
 
 def build_url(query):
@@ -404,12 +416,12 @@ def extract_acestream_links(content):
     return sorted(channels, key=lambda x: x[0].lower())
 
 def extract_acestream_events(content):
-    xbmc.log("Iniciando extracción de eventos", level=xbmc.LOGERROR)
+    xbmc.log("Iniciando extracción de eventos", level=xbmc.LOGINFO)
     events = []
 
     row_pattern = r"<tr>(.*?)</tr>"
     rows = re.findall(row_pattern, content, re.DOTALL)
-    xbmc.log(f"Filas encontradas: {len(rows)}", level=xbmc.LOGERROR)
+    xbmc.log(f"Filas encontradas: {len(rows)}", level=xbmc.LOGINFO)
 
     for row in rows:
         xbmc.log(f"Procesando fila: {row}", level=xbmc.LOGDEBUG)
@@ -419,7 +431,7 @@ def extract_acestream_events(content):
             continue
 
         time, competition, team1, team2, links = columns[:5]
-        xbmc.log(f"Datos extraídos: {time}, {competition}, {team1}, {team2}", level=xbmc.LOGERROR)
+        xbmc.log(f"Datos extraídos: {time}, {competition}, {team1}, {team2}", level=xbmc.LOGINFO)
 
         link_pattern = r"<a href=acestream://([a-fA-F0-9]+)>(.*?)</a>"
         link_matches = re.findall(link_pattern, links)
@@ -433,11 +445,11 @@ def extract_acestream_events(content):
             }
             events.append(event)
 
-    xbmc.log(f"Eventos extraídos: {len(events)}", level=xbmc.LOGERROR)
+    xbmc.log(f"Eventos extraídos: {len(events)}", level=xbmc.LOGINFO)
     return events
 
-def list_acestream_events():
-    xbmc.log("Entrando en list_acestream_events", level=xbmc.LOGERROR)
+def list_acestream_events(user):
+    xbmc.log("Entrando en list_acestream_events", level=xbmc.LOGINFO)
     content = get_page_content(EVENTS_URL)
     if not content:
         xbmc.log("No se pudo obtener contenido de la página.", level=xbmc.LOGERROR)
@@ -465,7 +477,7 @@ def list_acestream_events():
 
         xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=list_item, isFolder=False)
 
-    xbmc.log("Finalizando list_acestream_events", level=xbmc.LOGERROR)
+    xbmc.log("Finalizando list_acestream_events", level=xbmc.LOGINFO)
     xbmcplugin.endOfDirectory(addon_handle)
 
 def play_channel(channel_id):
@@ -479,6 +491,7 @@ def play_channel(channel_id):
         xbmcgui.Dialog().notification("Horus", "Reproduciendo en AceStream Engine...", xbmcgui.NOTIFICATION_INFO)
     except Exception as e:
         xbmcgui.Dialog().notification("Error", f"No se pudo ejecutar Horus: {e}", xbmcgui.NOTIFICATION_ERROR)
+        xbmc.log(f"Error al ejecutar Horus: {e}", level=xbmc.LOGERROR)
 
 def build_main_menu():
     xbmc.executebuiltin('Container.SetViewMode(55)')
@@ -535,6 +548,8 @@ def router(args):
                         addon_active = True
                         device_marked_active = True
                         show_account_info(user)
+                    else:
+                        xbmcgui.Dialog().notification("Error", "No se pudo registrar el dispositivo.", xbmcgui.NOTIFICATION_ERROR)
         else:
             username = credentials['username']
             password = credentials['password']
@@ -548,6 +563,24 @@ def router(args):
                         addon_active = True
                         device_marked_active = True
                         show_account_info(user)
+            else:
+                if os.path.exists(CREDENTIALS_FILE):
+                    os.remove(CREDENTIALS_FILE)
+                    xbmc.log("Credenciales eliminadas debido a fallo en la autenticación.", level=xbmc.LOGINFO)
+                username, password = prompt_for_credentials()
+                if username and password:
+                    user = check_user(username, password)
+                    if user:
+                        save_credentials(username, password)
+                        device_id = get_device_id()
+                        if update_active_devices(user['id'], device_id, increment=True):
+                            is_logged_in = True
+                            user_id_global = user['id']
+                            addon_active = True
+                            device_marked_active = True
+                            show_account_info(user)
+                        else:
+                            xbmcgui.Dialog().notification("Error", "No se pudo registrar el dispositivo.", xbmcgui.NOTIFICATION_ERROR)
 
     if not is_logged_in:
         xbmcplugin.endOfDirectory(addon_handle)
@@ -565,7 +598,6 @@ def router(args):
     else:
         build_main_menu()
 
-
 if __name__ == "__main__":
     monitor = xbmc.Monitor()
     if not check_remote_status():
@@ -573,6 +605,9 @@ if __name__ == "__main__":
     try:
         args = urllib.parse.parse_qs(sys.argv[2][1:])
         router(args)
+    except Exception as e:
+        xbmcgui.Dialog().notification("Error", f"Error inesperado: {e}", xbmcgui.NOTIFICATION_ERROR)
+        xbmc.log(f"Error inesperado en el router: {e}", level=xbmc.LOGERROR)
     finally:
         monitor.waitForAbort()
         on_exit()
