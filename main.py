@@ -204,6 +204,8 @@ def check_user(username, password):
         if user and hash_password(password) == user['password_hash']:
             expiry_date = user.get('expiry_date')
             if expiry_date:
+                if isinstance(expiry_date, str):
+                    expiry_date = datetime.strptime(expiry_date, "%Y-%m-%d %H:%M:%S")
                 current_date = datetime.now()
                 if current_date > expiry_date:
                     xbmcgui.Dialog().notification(
@@ -214,14 +216,8 @@ def check_user(username, password):
                     xbmc.log(f"Cuenta del usuario {username} ha expirado el {expiry_date}.", level=xbmc.LOGINFO)
                     return None
             else:
-                xbmcgui.Dialog().notification(
-                    "Error",
-                    "La cuenta no tiene una fecha de expiración válida.",
-                    xbmcgui.NOTIFICATION_ERROR
-                )
-                xbmc.log(f"Usuario {username} no tiene una fecha de expiración válida.", level=xbmc.LOGERROR)
-                return None
-
+                xbmc.log(f"Usuario {username} tiene una cuenta ilimitada.", level=xbmc.LOGINFO)
+            
             if user['active_devices'] >= user['max_devices']:
                 xbmcgui.Dialog().notification(
                     "Error",
@@ -254,6 +250,29 @@ def check_user(username, password):
     finally:
         cursor.close()
         connection.close()
+
+
+def show_account_info(user):
+    plan_name = user.get('plan_name')
+    expiry_date = user.get('expiry_date')
+    
+    if plan_name:
+        message = f"Plan: {plan_name}"
+        if expiry_date:
+            if isinstance(expiry_date, str):
+                expiry_date = datetime.strptime(expiry_date, "%Y-%m-%d %H:%M:%S")
+            formatted_date = expiry_date.strftime("%d/%m/%Y")
+            message += f"\nExpira el: {formatted_date}"
+        else:
+            message += "\nExpiración: Ilimitada"
+        
+        xbmcgui.Dialog().notification(
+            "Inicio de Sesión Exitoso",
+            message,
+            xbmcgui.NOTIFICATION_INFO,
+            5000
+        )
+
 
 def get_device_id():
     global current_device_id
@@ -515,16 +534,7 @@ def router(args):
                         user_id_global = user['id']
                         addon_active = True
                         device_marked_active = True
-                        plan_name = user.get('name')  
-                        expiry_date = user.get('expiry_date')
-                        if plan_name and expiry_date:
-                            formatted_date = expiry_date.strftime("%d/%m/%Y")
-                            xbmcgui.Dialog().notification(
-                                "Inicio de Sesión Exitoso",
-                                f"Plan: {plan_name}\nExpira el: {formatted_date}",
-                                xbmcgui.NOTIFICATION_INFO,
-                                5000
-                            )
+                        show_account_info(user)
         else:
             username = credentials['username']
             password = credentials['password']
@@ -537,31 +547,21 @@ def router(args):
                         user_id_global = user['id']
                         addon_active = True
                         device_marked_active = True
-                        plan_name = user.get('name')
-                        expiry_date = user.get('expiry_date')
-                        if plan_name and expiry_date:
-                            formatted_date = expiry_date.strftime("%d/%m/%Y")
-                            xbmcgui.Dialog().notification(
-                                "Inicio de Sesión Exitoso",
-                                f"Plan: {plan_name}\nExpira el: {formatted_date}",
-                                xbmcgui.NOTIFICATION_INFO,
-                                5000
-                            )
-    
+                        show_account_info(user)
+
     if not is_logged_in:
         xbmcplugin.endOfDirectory(addon_handle)
         return
     
-    # Procesar las acciones del addon
     action = args.get("action", [None])[0]
     channel_id = args.get("id", [None])[0]
     
     if action == "play" and channel_id:
         play_channel(channel_id)
     elif action == "tronosstv":
-        list_channels()
+        list_channels(user)
     elif action == "agendatronoss":
-        list_acestream_events()
+        list_acestream_events(user)
     else:
         build_main_menu()
 
