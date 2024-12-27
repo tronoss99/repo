@@ -119,6 +119,7 @@ is_logged_in = False
 addon_active = False 
 device_marked_active = False
 current_device_id = None
+account_info_shown = False
 
 def connect_db():
     try:
@@ -258,6 +259,9 @@ def check_user(username, password):
         connection.close()
 
 def show_account_info(user):
+    global account_info_shown
+    if account_info_shown:
+        return
     plan_name = user.get('plan_name')
     expiry_date = user.get('expiry_date')
     max_devices = user.get('max_devices', 'N/A')  
@@ -279,7 +283,8 @@ def show_account_info(user):
             5000
         )
         xbmc.log(f"Información de cuenta mostrada para el usuario {user['username']}.", level=xbmc.LOGINFO)
-
+        account_info_shown = True
+        
 def get_device_id():
     global current_device_id
     if current_device_id:  
@@ -365,6 +370,7 @@ def build_url(query):
     return f"{base_url}?{urllib.parse.urlencode(query)}"
 
 def list_channels(user):
+    xbmc.executebuiltin('Container.SetViewMode(511)')
     content = get_page_content(ACESTREAM_URL)
     if not content:
         xbmcplugin.endOfDirectory(addon_handle)
